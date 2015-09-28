@@ -1,0 +1,26 @@
+{
+  "name": "tetragon.js",
+  "version": "0.1.0",
+  "description": "JavaScript tool library for canvas applications",
+  "main": "tetragon.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/detomon/Tetragon.js.git"
+  },
+  "keywords": [
+    "Game",
+    "Animation",
+    "Canvas",
+    "Vector",
+    "Matrix"
+  ],
+  "author": "Simon Schoenenberger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/detomon/Tetragon.js/issues"
+  },
+  "homepage": "https://github.com/detomon/Tetragon.js#readme"
+}
