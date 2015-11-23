@@ -1,7 +1,10 @@
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Matrix = Tetragon.Matrix = function (values) {
 	if (values) {
@@ -63,7 +66,7 @@ Matrix.prototype.invert = function () {
 	det = this[0] * mat[0] + this[2] * mat[1];
 
 	if (det == 0.0) {
-		return this;
+		return this.copy();
 	}
 
 	det = 1.0 / det;

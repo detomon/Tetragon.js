@@ -1,7 +1,10 @@
+/**
+ * @depend tetragon.js
+ * @depend point-mass.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 /**
  * Defines a constraint between two point masses

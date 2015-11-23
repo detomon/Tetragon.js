@@ -1,7 +1,10 @@
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Range = Tetragon.Range = function (start, length) {
 	this.start = start || 0;

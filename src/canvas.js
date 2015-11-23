@@ -1,7 +1,12 @@
+/**
+ * @depend tetragon.js
+ * @depend animation-loop.js
+ * @depend vector.js
+ * @depend matrix.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 /**
  * Encapsulates canvas animation

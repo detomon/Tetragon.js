@@ -1,7 +1,9 @@
+/**
+ * @depend tetragon.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Controls = Tetragon.Controls = function () {
 	this.keys = 0;

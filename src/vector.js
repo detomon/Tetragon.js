@@ -1,7 +1,9 @@
+/**
+ * @depend tetragon.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Vector = Tetragon.Vector = function (x, y) {
 	this.x = parseFloat(x) || 0.0;

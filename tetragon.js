@@ -1,7 +1,161 @@
+/**
+ * Polyfill for window.requestAnimationFrame
+ *
+ * http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+ */
+(function () {
+	var lastTime = 0;
+	var vendors = ['webkit', 'moz'];
+	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+		window.cancelAnimationFrame =
+		  window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+	}
+
+	if (!window.requestAnimationFrame)
+		window.requestAnimationFrame = function (callback, element) {
+			var currTime = new Date().getTime();
+			var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+			var id = window.setTimeout(function () { callback(currTime + timeToCall); }, timeToCall);
+			lastTime = currTime + timeToCall;
+			return id;
+		};
+
+	if (!window.cancelAnimationFrame)
+		window.cancelAnimationFrame = function (id) {
+			clearTimeout(id);
+		};
+}());
+
+(function (w) {
+'use strict';
+
+w.Tetragon = w.Tetragon || {};
+
+}(window));
+
+/**
+ * @depend tetragon.js
+ */
+
 (function () {
 'use strict';
 
-window.Tetragon = window.Tetragon || {};
+var Vector = Tetragon.Vector = function (x, y) {
+	this.x = parseFloat(x) || 0.0;
+	this.y = parseFloat(y) || 0.0;
+};
+
+Vector.prototype.add = function (vec) {
+	return new Vector(this.x + vec.x, this.y + vec.y);
+};
+
+Vector.prototype.sub = function (vec) {
+	return new Vector(this.x - vec.x, this.y - vec.y);
+};
+
+Vector.prototype.inc = function (vec) {
+	this.x += vec.x;
+	this.y += vec.y;
+};
+
+Vector.prototype.dec = function (vec) {
+	this.x -= vec.x;
+	this.y -= vec.y;
+};
+
+Vector.prototype.shl = function (n) {
+	return new Vector(
+		this.x << n,
+		this.y << n
+	);
+};
+
+Vector.prototype.shr = function (n) {
+	return new Vector(
+		this.x >> n,
+		this.y >> n
+	);
+};
+
+Vector.prototype.integ = function (n) {
+	return new Vector(
+		this.x | 0,
+		this.y | 0
+	);
+};
+
+Vector.prototype.mult = function (fac) {
+	return new Vector(this.x * fac, this.y * fac);
+};
+
+Vector.prototype.length = function () {
+	return Math.sqrt(this.x * this.x + this.y * this.y);
+};
+
+Vector.prototype.normalize = function (length) {
+	if (length === undefined) {
+		length = 1.0;
+	}
+
+	var x   = this.x;
+	var y   = this.y;
+	var len = this.length();
+
+	if (len) {
+		len = length / len;
+	}
+
+	x *= len;
+	y *= len;
+
+	return new Vector(x, y);
+};
+
+Vector.prototype.multVec = function (vec) {
+	return new Vector(this.x * vec.x, this.y * vec.y);
+};
+
+Vector.prototype.dot = function (vec) {
+	return this.x * vec.x + this.y * vec.y
+};
+
+Vector.prototype.reflect = function (wall) {
+	wall = wall.normalize();
+	return this.sub(wall.mult(2.0 * wall.dot(this)));
+};
+
+Vector.prototype.negate = function (wall) {
+	return new Vector(-this.x, -this.y);
+};
+
+Vector.prototype.copy = function () {
+	return new Vector(this.x, this.y);
+};
+
+Vector.prototype.rotate = function (a) {
+	var r = a / 180.0 * Math.PI;
+	var c = Math.cos(r);
+	var s = Math.sin(r);
+
+	var x = this.x * c - this.y * s;
+	var y = this.x * s + this.y * c;
+
+	return new Vector(x, y);
+};
+
+Vector.prototype.copy = function (a) {
+	return new Vector(this.x, this.y);
+};
+
+}());
+
+/**
+ * @depend tetragon.js
+ */
+
+(function () {
+'use strict';
 
 /**
  * Animation loop
@@ -38,250 +192,12 @@ AnimationLoop.prototype.advanceToTime = function (time, tickFunc) {
 
 }());
 
-(function () {
-'use strict';
-
-window.Tetragon = window.Tetragon || {};
-
 /**
- * Encapsulates canvas animation
+ * @depend tetragon.js
  */
-var Canvas = Tetragon.Canvas = function (options) {
-	this.element       = options.element;
-	this.viewport      = new Tetragon.Rect();
-	this.ctx           = options.element.getContext('2d');
-	this.tick          = options.tick || function () {};
-	this.draw          = options.draw || function () {};
-	this.framerate     = options.framerate || (1.0 / 120.0);
-	this.frameDelta    = 0.0;
-	this.animationLoop = new Tetragon.AnimationLoop(this.framerate);
-	this.transform     = new Tetragon.Matrix();
-	this.inverseTrans  = new Tetragon.Matrix();
-
-	this._updateViewport();
-};
-
-Canvas.prototype._updateViewport = function () {
-	var element = this.element;
-	var width   = +element.width;
-	var height  = +element.height;
-
-	this.viewport.size.x = width;
-	this.viewport.size.y = height;
-};
-
-/**
- * Advance time
- */
-Canvas.prototype._tick = function () {
-	var self = this;
-	var time = (new Date()).getTime() / 1000;
-
-	this._updateViewport();
-
-	this.animationLoop.advanceToTime(time, function () {
-		self.tick(self.framerate, {
-			viewport: self.viewport,
-		});
-	});
-
-	this.frameDelta = (time - this.animationLoop.lastTime) / this.animationLoop.framerate;
-	this._draw();
-
-	this.animationFrame = window.requestAnimationFrame(function () {
-		self._tick();
-	});
-};
-
-/**
- * Draw frame
- */
-Canvas.prototype._draw = function () {
-	this._updateViewport();
-
-	var size   = this.viewport.size;
-	var width  = size.x;
-	var height = size.y;
-
-	this.ctx.clearRect(0, 0, width, height);
-	this.ctx.save();
-
-	this.transform = new Tetragon.Matrix();
-	this.inverseTrans = null;
-
-	this.draw(this.ctx, {
-		viewport: this.viewport,
-		frameDelta: this.frameDelta
-	});
-
-	this.ctx.restore();
-};
-
-Canvas.prototype.inverseTransform = function () {
-	if (!this.inverseTrans) {
-		this.inverseTrans = this.transform.invert();
-	}
-
-	return this.inverseTrans;
-};
-
-/**
- * Start animation loop
- */
-Canvas.prototype.startAnimating = function () {
-	var self = this;
-
-	if (!this.animationFrame) {
-		this.animationFrame = window.requestAnimationFrame(function () {
-			self._tick();
-		});
-	}
-};
-
-/**
- * Stop animation loop
- */
-Canvas.prototype.stopAnimating = function () {
-	if (this.animationFrame) {
-		window.cancelAnimationFrame(this.animationFrame);
-		this.animationFrame = null;
-	}
-};
-
-/**
- * Redraw frame
- *
- * When resizing
- */
-Canvas.prototype.redraw = function () {
-	this._draw();
-};
-
-/**
- * Get canvas offset from mouse event
- */
-Canvas.prototype.offsetFromEvent = function (e) {
-	var elem = this.element;
-	var x = elem.offsetLeft;
-	var y = elem.offsetTop;
-
-	while (elem = elem.offsetParent) {
-		x += elem.offsetLeft;
-		y += elem.offsetTop;
-	}
-
-	var offset = new Tetragon.Vector(x, y);
-	var scale = this.element.offsetWidth / this.element.width;
-
-	if (!e.changedTouches) {
-		offset.x = e.clientX - offset.x + document.documentElement.scrollLeft;
-		offset.y = e.clientY - offset.y + document.documentElement.scrollTop;
-	}
-	// is touch event
-	else {
-		offset.x = e.changedTouches[0].pageX - offset.x;
-		offset.y = e.changedTouches[0].pageY - offset.y;
-	}
-
-	offset.x -= this.element.offsetWidth * 0.5;
-	offset.y -= this.element.offsetHeight * 0.5;
-
-	offset = offset.mult(1.0 / scale);
-
-	return offset;
-};
-
-}());
 
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
-
-/**
- * Defines a constraint between two point masses
- *
- * Keeps the points `p1` and `p1` at a given resting distance `restDist`
- * A `stiffness` value of 1.0 sets the maximum responsiveness
- * Values below 1.0 and above 0.0 make the constraint more "rubbery"
- *
- * If `restDist` is omitted, it is set to the initial distance
- *   between `p1` and `p2`
- * If `stiffness` is omitted, it is set to its maximum value 1.0
- */
-var Constraint = Tetragon.Constraint = function (p1, p2, restDist, stiffness) {
-	// set current distance as resting distance if not defined
-	if (restDist === undefined) {
- 		restDist = p2.p.sub(p1.p).length();
-	}
-
-	// set default stiffness to maximum if not defined
-	if (stiffness === undefined) {
-		stiffness = 1.0;
-	}
-
-	// set controlling points
-	this.p1 = p1;
-	this.p2 = p2;
-
-	// set resting distance
-	this.restDist = restDist;
-
-	// set stiffness
-	this.stiffness = stiffness;
-}
-
-/**
- * Solve step
- */
-Constraint.prototype.solve = function() {
-	var p1 = this.p1;
-	var p2 = this.p2;
-
-	// current distance vector between points
-	// d = p1 - p2
-	var d = p1.p.sub(p2.p);
-
-	// scalar distance between points
-	// l = |d|
-	var l = d.length();
-
-	var r = 0.0;
-
-	// proportion between current distance and resting distance
-	if (l != 0.0) {
-		r = (this.restDist - l) / l;
-	}
-
-	// distance vector differing from resting distance
-	// d *= r
-	d = d.mult(r);
-
-	// mass influence of `p1` as fraction between 0.0 and 1.0
-	// `0.5` would mean that `p1` and `p2` have the same mass
-	var f1 = 1.0 - p1.mass / (p1.mass + p2.mass);
-
-	// influences of `p1` and `p2`
-	var s1 = f1 * this.stiffness;
-	var s2 = this.stiffness - s1;
-
-	if (!p1.pinned) {
-		// p1 += d * s1
-		p1.p = p1.p.add(d.mult(s1));
-	}
-
-	if (!p2.pinned) {
-		// p2 -= d * s2
-		p2.p = p2.p.sub(d.mult(s2));
-	}
-};
-
-}());
-
-(function () {
-'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Controls = Tetragon.Controls = function () {
 	this.keys = 0;
@@ -326,10 +242,12 @@ Controls.prototype.reset = function () {
 
 }());
 
+/**
+ * @depend tetragon.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var EntitySystem = Tetragon.EntitySystem = function () {
 	this.entities = [];
@@ -520,10 +438,13 @@ EntityComponent.prototype.iterate = function (func) {
 
 }());
 
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Matrix = Tetragon.Matrix = function (values) {
 	if (values) {
@@ -585,7 +506,7 @@ Matrix.prototype.invert = function () {
 	det = this[0] * mat[0] + this[2] * mat[1];
 
 	if (det == 0.0) {
-		return this;
+		return this.copy();
 	}
 
 	det = 1.0 / det;
@@ -619,10 +540,13 @@ Matrix.prototype.setContextTransform = function (ctx) {
 
 }());
 
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 /**
  * Defines a point mass
@@ -696,10 +620,13 @@ PointMass.prototype.pin = function() {
 
 }());
 
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Range = Tetragon.Range = function (start, length) {
 	this.start = start || 0;
@@ -727,15 +654,28 @@ Range.prototype.intersectsWithRange = function (range) {
 
 }());
 
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Rect = Tetragon.Rect = function (p, s) {
 	this.pos  = p ? p.copy() : new Tetragon.Vector();
 	this.size = s ? s.copy() : new Tetragon.Vector();
 };
+
+Object.defineProperty(Rect.prototype, 'maxPos', {
+	enumerable: true,
+	get: function () {
+		return this.pos.add(this.size);
+	},
+	set: function (maxPos) {
+		this.size = maxPos.sub(this.size);
+	}
+});
 
 Rect.prototype.intersectsWithRect = function (rect) {
 	if (rect.pos.x < this.pos.x + this.size.x && rect.pos.x + rect.size.x > this.pos.x) {
@@ -750,144 +690,249 @@ Rect.prototype.intersectsWithRect = function (rect) {
 }());
 
 /**
- * Polyfill for window.requestAnimationFrame
- *
- * http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+ * @depend tetragon.js
+ * @depend animation-loop.js
+ * @depend vector.js
+ * @depend matrix.js
  */
-(function () {
-	var lastTime = 0;
-	var vendors = ['webkit', 'moz'];
-	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-		window.cancelAnimationFrame =
-		  window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
-	}
-
-	if (!window.requestAnimationFrame)
-		window.requestAnimationFrame = function (callback, element) {
-			var currTime = new Date().getTime();
-			var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-			var id = window.setTimeout(function () { callback(currTime + timeToCall); }, timeToCall);
-			lastTime = currTime + timeToCall;
-			return id;
-		};
-
-	if (!window.cancelAnimationFrame)
-		window.cancelAnimationFrame = function (id) {
-			clearTimeout(id);
-		};
-}());
 
 (function () {
 'use strict';
 
-window.Tetragon = window.Tetragon || {};
+/**
+ * Encapsulates canvas animation
+ */
+var Canvas = Tetragon.Canvas = function (options) {
+	this.element       = options.element;
+	this.viewport      = new Tetragon.Rect();
+	this.ctx           = options.element.getContext('2d');
+	this.tick          = options.tick || function () {};
+	this.draw          = options.draw || function () {};
+	this.framerate     = options.framerate || (1.0 / 120.0);
+	this.frameDelta    = 0.0;
+	this.animationLoop = new Tetragon.AnimationLoop(this.framerate);
+	this.transform     = new Tetragon.Matrix();
+	this.inverseTrans  = new Tetragon.Matrix();
 
-var Vector = Tetragon.Vector = function (x, y) {
-	this.x = parseFloat(x) || 0.0;
-	this.y = parseFloat(y) || 0.0;
+	this._updateViewport();
 };
 
-Vector.prototype.add = function (vec) {
-	return new Vector(this.x + vec.x, this.y + vec.y);
+Canvas.prototype._updateViewport = function () {
+	var element = this.element;
+	var width   = +element.width;
+	var height  = +element.height;
+
+	this.viewport.size.x = width;
+	this.viewport.size.y = height;
 };
 
-Vector.prototype.sub = function (vec) {
-	return new Vector(this.x - vec.x, this.y - vec.y);
+/**
+ * Advance time
+ */
+Canvas.prototype._tick = function () {
+	var self = this;
+	var time = (new Date()).getTime() / 1000;
+
+	this._updateViewport();
+
+	this.animationLoop.advanceToTime(time, function () {
+		self.tick(self.framerate, {
+			viewport: self.viewport,
+		});
+	});
+
+	this.frameDelta = (time - this.animationLoop.lastTime) / this.animationLoop.framerate;
+	this._draw();
+
+	this.animationFrame = window.requestAnimationFrame(function () {
+		self._tick();
+	});
 };
 
-Vector.prototype.inc = function (vec) {
-	this.x += vec.x;
-	this.y += vec.y;
+/**
+ * Draw frame
+ */
+Canvas.prototype._draw = function () {
+	this._updateViewport();
+
+	var size   = this.viewport.size;
+	var width  = size.x;
+	var height = size.y;
+
+	this.ctx.clearRect(0, 0, width, height);
+	this.ctx.save();
+
+	this.transform = new Tetragon.Matrix();
+	this.inverseTrans = null;
+
+	this.draw(this.ctx, {
+		viewport: this.viewport,
+		frameDelta: this.frameDelta
+	});
+
+	this.ctx.restore();
 };
 
-Vector.prototype.dec = function (vec) {
-	this.x -= vec.x;
-	this.y -= vec.y;
-};
-
-Vector.prototype.shl = function (n) {
-	return new Vector(
-		this.x << n,
-		this.y << n
-	);
-};
-
-Vector.prototype.shr = function (n) {
-	return new Vector(
-		this.x >> n,
-		this.y >> n
-	);
-};
-
-Vector.prototype.integ = function (n) {
-	return new Vector(
-		this.x | 0,
-		this.y | 0
-	);
-};
-
-Vector.prototype.mult = function (fac) {
-	return new Vector(this.x * fac, this.y * fac);
-};
-
-Vector.prototype.length = function () {
-	return Math.sqrt(this.x * this.x + this.y * this.y);
-};
-
-Vector.prototype.normalize = function (length) {
-	if (length === undefined) {
-		length = 1.0;
+Canvas.prototype.inverseTransform = function () {
+	if (!this.inverseTrans) {
+		this.inverseTrans = this.transform.invert();
 	}
 
-	var x   = this.x;
-	var y   = this.y;
-	var len = this.length();
+	return this.inverseTrans;
+};
 
-	if (len) {
-		len = length / len;
+/**
+ * Start animation loop
+ */
+Canvas.prototype.startAnimating = function () {
+	var self = this;
+
+	if (!this.animationFrame) {
+		this.animationFrame = window.requestAnimationFrame(function () {
+			self._tick();
+		});
+	}
+};
+
+/**
+ * Stop animation loop
+ */
+Canvas.prototype.stopAnimating = function () {
+	if (this.animationFrame) {
+		window.cancelAnimationFrame(this.animationFrame);
+		this.animationFrame = null;
+	}
+};
+
+/**
+ * Redraw frame
+ *
+ * When resizing
+ */
+Canvas.prototype.redraw = function () {
+	this._draw();
+};
+
+/**
+ * Get canvas offset from mouse event
+ */
+Canvas.prototype.offsetFromEvent = function (e) {
+	var elem = this.element;
+	var x = elem.offsetLeft;
+	var y = elem.offsetTop;
+
+	while (elem = elem.offsetParent) {
+		x += elem.offsetLeft;
+		y += elem.offsetTop;
 	}
 
-	x *= len;
-	y *= len;
+	var offset = new Tetragon.Vector(x, y);
+	var scale = this.element.offsetWidth / this.element.width;
 
-	return new Vector(x, y);
+	if (!e.changedTouches) {
+		offset.x = e.clientX - offset.x + document.documentElement.scrollLeft;
+		offset.y = e.clientY - offset.y + document.documentElement.scrollTop;
+	}
+	// is touch event
+	else {
+		offset.x = e.changedTouches[0].pageX - offset.x;
+		offset.y = e.changedTouches[0].pageY - offset.y;
+	}
+
+	offset.x -= this.element.offsetWidth * 0.5;
+	offset.y -= this.element.offsetHeight * 0.5;
+
+	offset = offset.mult(1.0 / scale);
+
+	return offset;
 };
 
-Vector.prototype.multVec = function (vec) {
-	return new Vector(this.x * vec.x, this.y * vec.y);
-};
+}());
 
-Vector.prototype.dot = function (vec) {
-	return this.x * vec.x + this.y * vec.y
-};
+/**
+ * @depend tetragon.js
+ * @depend point-mass.js
+ */
 
-Vector.prototype.reflect = function (wall) {
-	wall = wall.normalize();
-	return this.sub(wall.mult(2.0 * wall.dot(this)));
-};
+(function () {
+'use strict';
 
-Vector.prototype.negate = function (wall) {
-	return new Vector(-this.x, -this.y);
-};
+/**
+ * Defines a constraint between two point masses
+ *
+ * Keeps the points `p1` and `p1` at a given resting distance `restDist`
+ * A `stiffness` value of 1.0 sets the maximum responsiveness
+ * Values below 1.0 and above 0.0 make the constraint more "rubbery"
+ *
+ * If `restDist` is omitted, it is set to the initial distance
+ *   between `p1` and `p2`
+ * If `stiffness` is omitted, it is set to its maximum value 1.0
+ */
+var Constraint = Tetragon.Constraint = function (p1, p2, restDist, stiffness) {
+	// set current distance as resting distance if not defined
+	if (restDist === undefined) {
+ 		restDist = p2.p.sub(p1.p).length();
+	}
 
-Vector.prototype.copy = function () {
-	return new Vector(this.x, this.y);
-};
+	// set default stiffness to maximum if not defined
+	if (stiffness === undefined) {
+		stiffness = 1.0;
+	}
 
-Vector.prototype.rotate = function (a) {
-	var r = a / 180.0 * Math.PI;
-	var c = Math.cos(r);
-	var s = Math.sin(r);
+	// set controlling points
+	this.p1 = p1;
+	this.p2 = p2;
 
-	var x = this.x * c - this.y * s;
-	var y = this.x * s + this.y * c;
+	// set resting distance
+	this.restDist = restDist;
 
-	return new Vector(x, y);
-};
+	// set stiffness
+	this.stiffness = stiffness;
+}
 
-Vector.prototype.copy = function (a) {
-	return new Vector(this.x, this.y);
+/**
+ * Solve step
+ */
+Constraint.prototype.solve = function() {
+	var p1 = this.p1;
+	var p2 = this.p2;
+
+	// current distance vector between points
+	// d = p1 - p2
+	var d = p1.p.sub(p2.p);
+
+	// scalar distance between points
+	// l = |d|
+	var l = d.length();
+
+	var r = 0.0;
+
+	// proportion between current distance and resting distance
+	if (l != 0.0) {
+		r = (this.restDist - l) / l;
+	}
+
+	// distance vector differing from resting distance
+	// d *= r
+	d = d.mult(r);
+
+	// mass influence of `p1` as fraction between 0.0 and 1.0
+	// `0.5` would mean that `p1` and `p2` have the same mass
+	var f1 = 1.0 - p1.mass / (p1.mass + p2.mass);
+
+	// influences of `p1` and `p2`
+	var s1 = f1 * this.stiffness;
+	var s2 = this.stiffness - s1;
+
+	if (!p1.pinned) {
+		// p1 += d * s1
+		p1.p = p1.p.add(d.mult(s1));
+	}
+
+	if (!p2.pinned) {
+		// p2 -= d * s2
+		p2.p = p2.p.sub(d.mult(s2));
+	}
 };
 
 }());

@@ -1,7 +1,10 @@
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 /**
  * Defines a point mass

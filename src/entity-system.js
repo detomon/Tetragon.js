@@ -1,7 +1,9 @@
+/**
+ * @depend tetragon.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var EntitySystem = Tetragon.EntitySystem = function () {
 	this.entities = [];

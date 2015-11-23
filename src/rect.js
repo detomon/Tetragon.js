@@ -1,12 +1,25 @@
+/**
+ * @depend tetragon.js
+ * @depend vector.js
+ */
+
 (function () {
 'use strict';
-
-window.Tetragon = window.Tetragon || {};
 
 var Rect = Tetragon.Rect = function (p, s) {
 	this.pos  = p ? p.copy() : new Tetragon.Vector();
 	this.size = s ? s.copy() : new Tetragon.Vector();
 };
+
+Object.defineProperty(Rect.prototype, 'maxPos', {
+	enumerable: true,
+	get: function () {
+		return this.pos.add(this.size);
+	},
+	set: function (maxPos) {
+		this.size = maxPos.sub(this.size);
+	}
+});
 
 Rect.prototype.intersectsWithRect = function (rect) {
 	if (rect.pos.x < this.pos.x + this.size.x && rect.pos.x + rect.size.x > this.pos.x) {
