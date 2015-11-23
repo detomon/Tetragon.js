@@ -1,6 +1,8 @@
 (function () {
 'use strict';
 
+window.Tetragon = window.Tetragon || {};
+
 var Matrix = Tetragon.Matrix = function (values) {
 	if (values) {
 		for (var i = 0; i < 6; i ++) {

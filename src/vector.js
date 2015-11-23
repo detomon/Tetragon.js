@@ -1,6 +1,8 @@
 (function () {
 'use strict';
 
+window.Tetragon = window.Tetragon || {};
+
 var Vector = Tetragon.Vector = function (x, y) {
 	this.x = parseFloat(x) || 0.0;
 	this.y = parseFloat(y) || 0.0;
@@ -101,7 +103,11 @@ Vector.prototype.rotate = function (a) {
 	var x = this.x * c - this.y * s;
 	var y = this.x * s + this.y * c;
 
-	return new Vector (x, y);
+	return new Vector(x, y);
+};
+
+Vector.prototype.copy = function (a) {
+	return new Vector(this.x, this.y);
 };
 
 }());

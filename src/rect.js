@@ -1,6 +1,8 @@
 (function () {
 'use strict';
 
+window.Tetragon = window.Tetragon || {};
+
 var Rect = Tetragon.Rect = function (p, s) {
 	this.pos  = p ? p.copy() : new Tetragon.Vector();
 	this.size = s ? s.copy() : new Tetragon.Vector();

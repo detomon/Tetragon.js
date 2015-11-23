@@ -1,6 +1,8 @@
 (function () {
 'use strict';
 
+window.Tetragon = window.Tetragon || {};
+
 /**
  * Animation loop
  */

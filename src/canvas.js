@@ -1,6 +1,8 @@
 (function () {
 'use strict';
 
+window.Tetragon = window.Tetragon || {};
+
 /**
  * Encapsulates canvas animation
  */
@@ -128,7 +130,7 @@ Canvas.prototype.offsetFromEvent = function (e) {
 		y += elem.offsetTop;
 	}
 
-	var offset = new Vector(x, y);
+	var offset = new Tetragon.Vector(x, y);
 	var scale = this.element.offsetWidth / this.element.width;
 
 	if (!e.changedTouches) {
