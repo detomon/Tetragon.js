@@ -1,1 +1,3 @@
-var Tetragon = {};
+(function () {
+	window.Tetragon = {};
+}(window));
