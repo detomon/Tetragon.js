@@ -22,26 +22,28 @@ var Matrix = Tetragon.Matrix = function (values) {
 	}
 };
 
-Matrix.prototype.translate = function (vec) {
+var proto = Matrix.prototype;
+
+proto.translate = function (vec) {
 	this[4] += vec.x * this[0] + vec.y * this[2];
 	this[5] += vec.x * this[1] + vec.y * this[3];
 };
 
-Matrix.prototype.scale = function (vec) {
+proto.scale = function (vec) {
 	this[0] *= vec.x;
 	this[2] *= vec.x;
 	this[1] *= vec.y;
 	this[3] *= vec.y;
 };
 
-Matrix.prototype.multVec = function (vec) {
+proto.multVec = function (vec) {
 	return new Tetragon.Vector(
 		this[0] * vec.x + this[2] * vec.y + this[4],
 		this[1] * vec.x + this[3] * vec.y + this[5]
 	);
 };
 
-Matrix.prototype.multiply = function (mat) {
+proto.multiply = function (mat) {
 	return new Matrix([
 		this[0] * mat[0] + this[2] * mat[1],
 		this[1] * mat[0] + this[3] * mat[1],
@@ -52,7 +54,7 @@ Matrix.prototype.multiply = function (mat) {
 	]);
 };
 
-Matrix.prototype.invert = function () {
+proto.invert = function () {
 	var det;
 	var mat = new Tetragon.Matrix();
 
@@ -81,7 +83,7 @@ Matrix.prototype.invert = function () {
 	return mat;
 };
 
-Matrix.prototype.copy = function () {
+proto.copy = function () {
 	var mat = new Tetragon.Matrix();
 
 	mat[0] = this[0];
@@ -94,7 +96,7 @@ Matrix.prototype.copy = function () {
 	return mat;
 };
 
-Matrix.prototype.setContextTransform = function (ctx) {
+proto.setContextTransform = function (ctx) {
 	ctx.setTransform(this[0], this[1], this[2], this[3], this[4], this[5]);
 };
 

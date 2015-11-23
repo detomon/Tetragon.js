@@ -26,23 +26,25 @@ Controls.keyMap = {
 	83: Controls.BOTTOM  // S
 };
 
-Controls.prototype.pressKeyWithCode = function (keyCode) {
+var proto = Controls.prototype;
+
+proto.pressKeyWithCode = function (keyCode) {
 	if (Controls.keyMap[keyCode]) {
 		this.keys |= Controls.keyMap[keyCode];
 	}
 };
 
-Controls.prototype.releaseKeyWithCode = function (keyCode) {
+proto.releaseKeyWithCode = function (keyCode) {
 	if (Controls.keyMap[keyCode]) {
 		this.keys &= ~Controls.keyMap[keyCode];
 	}
 };
 
-Controls.prototype.isKeyPressed = function (key) {
+proto.isKeyPressed = function (key) {
 	return this.keys & key;
 };
 
-Controls.prototype.reset = function () {
+proto.reset = function () {
 	this.keys = 0;
 };
 

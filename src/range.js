@@ -12,7 +12,9 @@ var Range = Tetragon.Range = function (start, length) {
 
 };
 
-Object.defineProperty(Range.prototype, 'end', {
+var proto = Range.prototype;
+
+Object.defineProperty(proto, 'end', {
 	enumerable: true,
 	get: function () {
 		return this.start + this.length;
@@ -22,11 +24,15 @@ Object.defineProperty(Range.prototype, 'end', {
 	}
 });
 
-Range.prototype.intersectsWithPoint = function (point) {
-	return point.x >= this.start && point.y <= this.end;
+proto.containsPoint = function (point) {
+	return point >= this.start && point < this.end;
 };
 
-Range.prototype.intersectsWithRange = function (range) {
+proto.containsRange = function (range) {
+	return range.start >= this.start && range.end <= this.end;
+};
+
+proto.intersectsWithRange = function (range) {
 	return range.start < this.end && range.end > this.start;
 };
 

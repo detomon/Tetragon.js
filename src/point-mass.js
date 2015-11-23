@@ -30,12 +30,14 @@ var PointMass = Tetragon.PointMass = function (position, mass) {
 
 	// `true` if pinned to current position
 	this.pinned = false;
-}
+};
+
+var proto = PointMass.prototype;
 
 /**
  * Move point to next position
  */
-PointMass.prototype.inertia = function(dt) {
+proto.inertia = function(dt) {
 	// time depending factor used for acceleration
 	// dtf = 0.5 * dt^2
 	var dtf = 0.5 * dt * dt;
@@ -62,7 +64,7 @@ PointMass.prototype.inertia = function(dt) {
 /**
  * Add force vector
  */
-PointMass.prototype.applyForce = function(force) {
+proto.applyForce = function(force) {
 	// add force multiplied with inverse of mass
 	// a += force * (1.0 / mass)
 	this.a = this.a.add(force.mult(1.0 / this.mass));
@@ -71,7 +73,7 @@ PointMass.prototype.applyForce = function(force) {
 /**
  * Pin point to its current position
  */
-PointMass.prototype.pin = function() {
+proto.pin = function() {
 	this.pp     = this.p.copy();
 	this.pinned = true;
 };

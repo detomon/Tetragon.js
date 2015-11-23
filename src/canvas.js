@@ -26,7 +26,9 @@ var Canvas = Tetragon.Canvas = function (options) {
 	this._updateViewport();
 };
 
-Canvas.prototype._updateViewport = function () {
+var proto = Canvas.prototype;
+
+proto._updateViewport = function () {
 	var element = this.element;
 	var width   = +element.width;
 	var height  = +element.height;
@@ -38,7 +40,7 @@ Canvas.prototype._updateViewport = function () {
 /**
  * Advance time
  */
-Canvas.prototype._tick = function () {
+proto._tick = function () {
 	var self = this;
 	var time = (new Date()).getTime() / 1000;
 
@@ -61,7 +63,7 @@ Canvas.prototype._tick = function () {
 /**
  * Draw frame
  */
-Canvas.prototype._draw = function () {
+proto._draw = function () {
 	this._updateViewport();
 
 	var size   = this.viewport.size;
@@ -82,7 +84,7 @@ Canvas.prototype._draw = function () {
 	this.ctx.restore();
 };
 
-Canvas.prototype.inverseTransform = function () {
+proto.inverseTransform = function () {
 	if (!this.inverseTrans) {
 		this.inverseTrans = this.transform.invert();
 	}
@@ -93,7 +95,7 @@ Canvas.prototype.inverseTransform = function () {
 /**
  * Start animation loop
  */
-Canvas.prototype.startAnimating = function () {
+proto.startAnimating = function () {
 	var self = this;
 
 	if (!this.animationFrame) {
@@ -106,7 +108,7 @@ Canvas.prototype.startAnimating = function () {
 /**
  * Stop animation loop
  */
-Canvas.prototype.stopAnimating = function () {
+proto.stopAnimating = function () {
 	if (this.animationFrame) {
 		window.cancelAnimationFrame(this.animationFrame);
 		this.animationFrame = null;
@@ -118,14 +120,14 @@ Canvas.prototype.stopAnimating = function () {
  *
  * When resizing
  */
-Canvas.prototype.redraw = function () {
+proto.redraw = function () {
 	this._draw();
 };
 
 /**
  * Get canvas offset from mouse event
  */
-Canvas.prototype.offsetFromEvent = function (e) {
+proto.offsetFromEvent = function (e) {
 	var elem = this.element;
 	var x = elem.offsetLeft;
 	var y = elem.offsetTop;
@@ -139,8 +141,10 @@ Canvas.prototype.offsetFromEvent = function (e) {
 	var scale = this.element.offsetWidth / this.element.width;
 
 	if (!e.changedTouches) {
-		offset.x = e.clientX - offset.x + document.documentElement.scrollLeft;
-		offset.y = e.clientY - offset.y + document.documentElement.scrollTop;
+		var docElem = document.documentElement;
+
+		offset.x = e.clientX - offset.x + docElem.scrollLeft;
+		offset.y = e.clientY - offset.y + docElem.scrollTop;
 	}
 	// is touch event
 	else {

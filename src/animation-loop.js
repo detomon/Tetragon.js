@@ -13,12 +13,14 @@ var AnimationLoop = Tetragon.AnimationLoop = function (framerate) {
 	this.lastTime  = 0;
 }
 
+var proto = AnimationLoop.prototype;
+
 /**
  * Advance animation loop to new time
  *
  * `tickFunc` is called every frame
  */
-AnimationLoop.prototype.advanceToTime = function (time, tickFunc) {
+proto.advanceToTime = function (time, tickFunc) {
 	// set `lastTime` to previous frame if first frame
 	if (this.lastTime == 0) {
 		this.lastTime = time - 1.0 / 60.0;

@@ -3,29 +3,29 @@
  *
  * http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
  */
-(function () {
+(function (w) {
 	var lastTime = 0;
 	var vendors = ['webkit', 'moz'];
-	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-		window.cancelAnimationFrame =
-		  window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+	for(var x = 0; x < vendors.length && !w.requestAnimationFrame; ++x) {
+		w.requestAnimationFrame = w[vendors[x]+'RequestAnimationFrame'];
+		w.cancelAnimationFrame =
+		  w[vendors[x]+'CancelAnimationFrame'] || w[vendors[x]+'CancelRequestAnimationFrame'];
 	}
 
-	if (!window.requestAnimationFrame)
-		window.requestAnimationFrame = function (callback, element) {
+	if (!w.requestAnimationFrame)
+		w.requestAnimationFrame = function (callback, element) {
 			var currTime = new Date().getTime();
 			var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-			var id = window.setTimeout(function () { callback(currTime + timeToCall); }, timeToCall);
+			var id = w.setTimeout(function () { callback(currTime + timeToCall); }, timeToCall);
 			lastTime = currTime + timeToCall;
 			return id;
 		};
 
-	if (!window.cancelAnimationFrame)
-		window.cancelAnimationFrame = function (id) {
+	if (!w.cancelAnimationFrame)
+		w.cancelAnimationFrame = function (id) {
 			clearTimeout(id);
 		};
-}());
+}(window));
 
 (function (w) {
 'use strict';
@@ -46,54 +46,56 @@ var Vector = Tetragon.Vector = function (x, y) {
 	this.y = parseFloat(y) || 0.0;
 };
 
-Vector.prototype.add = function (vec) {
+var proto = Vector.prototype;
+
+proto.add = function (vec) {
 	return new Vector(this.x + vec.x, this.y + vec.y);
 };
 
-Vector.prototype.sub = function (vec) {
+proto.sub = function (vec) {
 	return new Vector(this.x - vec.x, this.y - vec.y);
 };
 
-Vector.prototype.inc = function (vec) {
+proto.inc = function (vec) {
 	this.x += vec.x;
 	this.y += vec.y;
 };
 
-Vector.prototype.dec = function (vec) {
+proto.dec = function (vec) {
 	this.x -= vec.x;
 	this.y -= vec.y;
 };
 
-Vector.prototype.shl = function (n) {
+proto.shl = function (n) {
 	return new Vector(
 		this.x << n,
 		this.y << n
 	);
 };
 
-Vector.prototype.shr = function (n) {
+proto.shr = function (n) {
 	return new Vector(
 		this.x >> n,
 		this.y >> n
 	);
 };
 
-Vector.prototype.integ = function (n) {
+proto.integ = function (n) {
 	return new Vector(
 		this.x | 0,
 		this.y | 0
 	);
 };
 
-Vector.prototype.mult = function (fac) {
+proto.mult = function (fac) {
 	return new Vector(this.x * fac, this.y * fac);
 };
 
-Vector.prototype.length = function () {
+proto.length = function () {
 	return Math.sqrt(this.x * this.x + this.y * this.y);
 };
 
-Vector.prototype.normalize = function (length) {
+proto.normalize = function (length) {
 	if (length === undefined) {
 		length = 1.0;
 	}
@@ -112,28 +114,28 @@ Vector.prototype.normalize = function (length) {
 	return new Vector(x, y);
 };
 
-Vector.prototype.multVec = function (vec) {
+proto.multVec = function (vec) {
 	return new Vector(this.x * vec.x, this.y * vec.y);
 };
 
-Vector.prototype.dot = function (vec) {
-	return this.x * vec.x + this.y * vec.y
+proto.dot = function (vec) {
+	return this.x * vec.x + this.y * vec.y;
 };
 
-Vector.prototype.reflect = function (wall) {
+proto.reflect = function (wall) {
 	wall = wall.normalize();
 	return this.sub(wall.mult(2.0 * wall.dot(this)));
 };
 
-Vector.prototype.negate = function (wall) {
+proto.negate = function (wall) {
 	return new Vector(-this.x, -this.y);
 };
 
-Vector.prototype.copy = function () {
+proto.copy = function () {
 	return new Vector(this.x, this.y);
 };
 
-Vector.prototype.rotate = function (a) {
+proto.rotate = function (a) {
 	var r = a / 180.0 * Math.PI;
 	var c = Math.cos(r);
 	var s = Math.sin(r);
@@ -144,7 +146,7 @@ Vector.prototype.rotate = function (a) {
 	return new Vector(x, y);
 };
 
-Vector.prototype.copy = function (a) {
+proto.copy = function (a) {
 	return new Vector(this.x, this.y);
 };
 
@@ -165,12 +167,14 @@ var AnimationLoop = Tetragon.AnimationLoop = function (framerate) {
 	this.lastTime  = 0;
 }
 
+var proto = AnimationLoop.prototype;
+
 /**
  * Advance animation loop to new time
  *
  * `tickFunc` is called every frame
  */
-AnimationLoop.prototype.advanceToTime = function (time, tickFunc) {
+proto.advanceToTime = function (time, tickFunc) {
 	// set `lastTime` to previous frame if first frame
 	if (this.lastTime == 0) {
 		this.lastTime = time - 1.0 / 60.0;
@@ -220,23 +224,25 @@ Controls.keyMap = {
 	83: Controls.BOTTOM  // S
 };
 
-Controls.prototype.pressKeyWithCode = function (keyCode) {
+var proto = Controls.prototype;
+
+proto.pressKeyWithCode = function (keyCode) {
 	if (Controls.keyMap[keyCode]) {
 		this.keys |= Controls.keyMap[keyCode];
 	}
 };
 
-Controls.prototype.releaseKeyWithCode = function (keyCode) {
+proto.releaseKeyWithCode = function (keyCode) {
 	if (Controls.keyMap[keyCode]) {
 		this.keys &= ~Controls.keyMap[keyCode];
 	}
 };
 
-Controls.prototype.isKeyPressed = function (key) {
+proto.isKeyPressed = function (key) {
 	return this.keys & key;
 };
 
-Controls.prototype.reset = function () {
+proto.reset = function () {
 	this.keys = 0;
 };
 
@@ -249,149 +255,6 @@ Controls.prototype.reset = function () {
 (function () {
 'use strict';
 
-var EntitySystem = Tetragon.EntitySystem = function () {
-	this.entities = [];
-	this.freeEntites = [];
-	this.components = [];
-	this.namedComponents = {};
-};
-
-EntitySystem.prototype.component = function (name) {
-	return this.namedComponents[name];
-};
-
-EntitySystem.prototype.createComponent = function (options) {
-	var id = this.components.length;
-	var component = new EntityComponent(id, options);
-	this.components.push(component);
-	this.namedComponents[component.name] = component;
-
-	return component;
-};
-
-EntitySystem.prototype.entity = function (id) {
-	if (this.entities[id] === undefined) {
-		return null;
-	}
-
-	return new Entity(id, this);
-};
-
-EntitySystem.prototype.createEntity = function () {
-	var id = this.freeEntites.pop();
-
-	if (id === undefined) {
-		id = this.entities.length + 1;
-		this.entities.push(0);
-	}
-
-	return new Entity(id, this);
-};
-
-EntitySystem.prototype.iterate = function (name, func) {
-	var args = Array.prototype.slice.apply(arguments, [2]);
-	var component = this.component(name);
-
-	if (component) {
-		args.unshift(func);
-		component.iterate.apply(component, args);
-	}
-};
-
-var Entity = Tetragon.Entity = function (id, system) {
-	this.id = id;
-	this.system = system;
-};
-
-Entity.prototype.addComponent = function (component) {
-	var args = Array.prototype.slice.apply(arguments, [1]);
-
-	if (typeof(component) == 'string') {
-		component = this.system.component(component);
-
-		if (!component) {
-			return null;
-		}
-	}
-
-	if (component.data[this.id - 1]) {
-		return null;
-	}
-
-	var instance;
-
-	if (component.createInstance) {
-		instance = component.createInstance.apply(this, args);
-	}
-	else {
-		instance = {};
-	}
-
-	instance.entity = this;
-	component.data[this.id - 1] = instance;
-	this.system.entities[this.id - 1] |= (1 << component.id);
-
-	return instance;
-};
-
-Entity.prototype.removeComponent = function (component) {
-	if (typeof(component) == 'string') {
-		component = this.system.component(component);
-
-		if (!component) {
-			return null;
-		}
-	}
-
-	if (!component.data[this.id - 1]) {
-		return null;
-	}
-
-	delete component.data[this.id - 1];
-	this.system.entities[this.id - 1] &= ~(1 << component.id);
-
-	return instance;
-};
-
-Entity.prototype.componentData = function (name) {
-	var component = this.system.namedComponents[name];
-
-	if (!component) {
-		return null;
-	}
-
-	return component.data[this.id - 1];
-};
-
-Entity.prototype.delete = function () {
-	var n = 0;
-	var system = this.system;
-
-	if (system.entities[this.id - 1] === undefined) {
-		return;
-	}
-
-	var mask = system.entities[this.id - 1];
-
-	while (mask) {
-		if (!(mask & 0xFF)) {
-			mask >>= 8;
-			n += 8;
-		}
-
-		if (mask & 1) {
-			var component = system.components[n];
-			delete component.data[this.id - 1];
-		}
-
-		mask >>= 1;
-		n ++;
-	}
-
-	delete system.entities[this.id - 1];
-	system.freeEntites.push(this.id);
-};
-
 var EntityComponent = Tetragon.EntityComponent = function (id, options) {
 	this.id = id;
 	this.name = options.name;
@@ -399,6 +262,8 @@ var EntityComponent = Tetragon.EntityComponent = function (id, options) {
 	this.createInstance = options.createInstance;
 	this.data = [];
 };
+
+var proto = EntityComponent.prototype;
 
 /**
  * Iterate entity component data
@@ -409,7 +274,7 @@ var EntityComponent = Tetragon.EntityComponent = function (id, options) {
  * initialization is called with the entity component data as first argument
  * and all argument given to this function.
  */
-EntityComponent.prototype.iterate = function (func) {
+proto.iterate = function (func) {
 	var i;
 	var args = Array.prototype.slice.apply(arguments, [1]);
 
@@ -440,6 +305,174 @@ EntityComponent.prototype.iterate = function (func) {
 
 /**
  * @depend tetragon.js
+ * @depend entity-component.js
+ */
+
+(function () {
+'use strict';
+
+var EntitySystem = Tetragon.EntitySystem = function () {
+	this.entities = [];
+	this.freeEntites = [];
+	this.components = [];
+	this.namedComponents = {};
+};
+
+var proto = EntitySystem.prototype;
+
+proto.component = function (name) {
+	return this.namedComponents[name];
+};
+
+proto.createComponent = function (options) {
+	var id = this.components.length;
+	var component = new Tetragon.EntityComponent(id, options);
+	this.components.push(component);
+	this.namedComponents[component.name] = component;
+
+	return component;
+};
+
+proto.entity = function (id) {
+	if (this.entities[id] === undefined) {
+		return null;
+	}
+
+	return new Entity(id, this);
+};
+
+proto.createEntity = function () {
+	var id = this.freeEntites.pop();
+
+	if (id === undefined) {
+		id = this.entities.length + 1;
+		this.entities.push(0);
+	}
+
+	return new Tetragon.Entity(id, this);
+};
+
+proto.iterate = function (name, func) {
+	var args = Array.prototype.slice.apply(arguments, [2]);
+	var component = this.component(name);
+
+	if (component) {
+		args.unshift(func);
+		component.iterate.apply(component, args);
+	}
+};
+
+}());
+
+/**
+ * @depend tetragon.js
+ * @depend entity-system.js
+ * @depend entity-component.js
+ */
+
+(function () {
+'use strict';
+
+var Entity = Tetragon.Entity = function (id, system) {
+	this.id = id;
+	this.system = system;
+};
+
+var proto = Entity.prototype;
+
+proto.addComponent = function (component) {
+	var args = Array.prototype.slice.apply(arguments, [1]);
+
+	if (typeof(component) == 'string') {
+		component = this.system.component(component);
+
+		if (!component) {
+			return null;
+		}
+	}
+
+	if (component.data[this.id - 1]) {
+		return null;
+	}
+
+	var instance;
+
+	if (component.createInstance) {
+		instance = component.createInstance.apply(this, args);
+	}
+	else {
+		instance = {};
+	}
+
+	instance.entity = this;
+	component.data[this.id - 1] = instance;
+	this.system.entities[this.id - 1] |= (1 << component.id);
+
+	return instance;
+};
+
+proto.removeComponent = function (component) {
+	if (typeof(component) == 'string') {
+		component = this.system.component(component);
+
+		if (!component) {
+			return null;
+		}
+	}
+
+	if (!component.data[this.id - 1]) {
+		return null;
+	}
+
+	delete component.data[this.id - 1];
+	this.system.entities[this.id - 1] &= ~(1 << component.id);
+
+	return instance;
+};
+
+proto.componentData = function (name) {
+	var component = this.system.namedComponents[name];
+
+	if (!component) {
+		return null;
+	}
+
+	return component.data[this.id - 1];
+};
+
+proto.delete = function () {
+	var n = 0;
+	var system = this.system;
+
+	if (system.entities[this.id - 1] === undefined) {
+		return;
+	}
+
+	var mask = system.entities[this.id - 1];
+
+	while (mask) {
+		if (!(mask & 0xFF)) {
+			mask >>= 8;
+			n += 8;
+		}
+
+		if (mask & 1) {
+			var component = system.components[n];
+			delete component.data[this.id - 1];
+		}
+
+		mask >>= 1;
+		n ++;
+	}
+
+	delete system.entities[this.id - 1];
+	system.freeEntites.push(this.id);
+};
+
+}());
+
+/**
+ * @depend tetragon.js
  * @depend vector.js
  */
 
@@ -462,26 +495,28 @@ var Matrix = Tetragon.Matrix = function (values) {
 	}
 };
 
-Matrix.prototype.translate = function (vec) {
+var proto = Matrix.prototype;
+
+proto.translate = function (vec) {
 	this[4] += vec.x * this[0] + vec.y * this[2];
 	this[5] += vec.x * this[1] + vec.y * this[3];
 };
 
-Matrix.prototype.scale = function (vec) {
+proto.scale = function (vec) {
 	this[0] *= vec.x;
 	this[2] *= vec.x;
 	this[1] *= vec.y;
 	this[3] *= vec.y;
 };
 
-Matrix.prototype.multVec = function (vec) {
+proto.multVec = function (vec) {
 	return new Tetragon.Vector(
 		this[0] * vec.x + this[2] * vec.y + this[4],
 		this[1] * vec.x + this[3] * vec.y + this[5]
 	);
 };
 
-Matrix.prototype.multiply = function (mat) {
+proto.multiply = function (mat) {
 	return new Matrix([
 		this[0] * mat[0] + this[2] * mat[1],
 		this[1] * mat[0] + this[3] * mat[1],
@@ -492,7 +527,7 @@ Matrix.prototype.multiply = function (mat) {
 	]);
 };
 
-Matrix.prototype.invert = function () {
+proto.invert = function () {
 	var det;
 	var mat = new Tetragon.Matrix();
 
@@ -521,7 +556,7 @@ Matrix.prototype.invert = function () {
 	return mat;
 };
 
-Matrix.prototype.copy = function () {
+proto.copy = function () {
 	var mat = new Tetragon.Matrix();
 
 	mat[0] = this[0];
@@ -534,7 +569,7 @@ Matrix.prototype.copy = function () {
 	return mat;
 };
 
-Matrix.prototype.setContextTransform = function (ctx) {
+proto.setContextTransform = function (ctx) {
 	ctx.setTransform(this[0], this[1], this[2], this[3], this[4], this[5]);
 };
 
@@ -572,12 +607,14 @@ var PointMass = Tetragon.PointMass = function (position, mass) {
 
 	// `true` if pinned to current position
 	this.pinned = false;
-}
+};
+
+var proto = PointMass.prototype;
 
 /**
  * Move point to next position
  */
-PointMass.prototype.inertia = function(dt) {
+proto.inertia = function(dt) {
 	// time depending factor used for acceleration
 	// dtf = 0.5 * dt^2
 	var dtf = 0.5 * dt * dt;
@@ -604,7 +641,7 @@ PointMass.prototype.inertia = function(dt) {
 /**
  * Add force vector
  */
-PointMass.prototype.applyForce = function(force) {
+proto.applyForce = function(force) {
 	// add force multiplied with inverse of mass
 	// a += force * (1.0 / mass)
 	this.a = this.a.add(force.mult(1.0 / this.mass));
@@ -613,7 +650,7 @@ PointMass.prototype.applyForce = function(force) {
 /**
  * Pin point to its current position
  */
-PointMass.prototype.pin = function() {
+proto.pin = function() {
 	this.pp     = this.p.copy();
 	this.pinned = true;
 };
@@ -634,7 +671,9 @@ var Range = Tetragon.Range = function (start, length) {
 
 };
 
-Object.defineProperty(Range.prototype, 'end', {
+var proto = Range.prototype;
+
+Object.defineProperty(proto, 'end', {
 	enumerable: true,
 	get: function () {
 		return this.start + this.length;
@@ -644,11 +683,15 @@ Object.defineProperty(Range.prototype, 'end', {
 	}
 });
 
-Range.prototype.intersectsWithPoint = function (point) {
-	return point.x >= this.start && point.y <= this.end;
+proto.containsPoint = function (point) {
+	return point >= this.start && point < this.end;
 };
 
-Range.prototype.intersectsWithRange = function (range) {
+proto.containsRange = function (range) {
+	return range.start >= this.start && range.end <= this.end;
+};
+
+proto.intersectsWithRange = function (range) {
 	return range.start < this.end && range.end > this.start;
 };
 
@@ -667,7 +710,9 @@ var Rect = Tetragon.Rect = function (p, s) {
 	this.size = s ? s.copy() : new Tetragon.Vector();
 };
 
-Object.defineProperty(Rect.prototype, 'maxPos', {
+var proto = Rect.prototype;
+
+Object.defineProperty(proto, 'maxPos', {
 	enumerable: true,
 	get: function () {
 		return this.pos.add(this.size);
@@ -677,9 +722,42 @@ Object.defineProperty(Rect.prototype, 'maxPos', {
 	}
 });
 
-Rect.prototype.intersectsWithRect = function (rect) {
-	if (rect.pos.x < this.pos.x + this.size.x && rect.pos.x + rect.size.x > this.pos.x) {
-		if (rect.pos.y < this.pos.y + this.size.y && rect.pos.y + rect.size.y > this.pos.y) {
+proto.containsPoint = function (point) {
+	var pos = this.pos;
+	var maxPos = this.maxPos;
+
+	if (point.x >= pos.x && point.x < maxPos.x) {
+		if (point.y >= pos.y && point.y < maxPos.y) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+proto.containsRect = function (rect) {
+	var pos = this.pos;
+	var maxPos = this.maxPos;
+	var rectPos = rect.pos;
+	var rectMaxPos = rect.maxPos;
+
+	if (rectPos.x >= pos.x && rectMaxPos.x < maxPos.x) {
+		if (rectPos.y >= pos.y && rectMaxPos.y < maxPos.y) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+proto.intersectsWithRect = function (rect) {
+	var pos = this.pos;
+	var maxPos = this.maxPos;
+	var rectPos = rect.pos;
+	var rectMaxPos = rect.maxPos;
+
+	if (rectMaxPos.x > pos.x && rectPos.x < maxPos.x) {
+		if (rectMaxPos.y > pos.y && rectPos.y < maxPos.y) {
 			return true;
 		}
 	}
@@ -717,7 +795,9 @@ var Canvas = Tetragon.Canvas = function (options) {
 	this._updateViewport();
 };
 
-Canvas.prototype._updateViewport = function () {
+var proto = Canvas.prototype;
+
+proto._updateViewport = function () {
 	var element = this.element;
 	var width   = +element.width;
 	var height  = +element.height;
@@ -729,7 +809,7 @@ Canvas.prototype._updateViewport = function () {
 /**
  * Advance time
  */
-Canvas.prototype._tick = function () {
+proto._tick = function () {
 	var self = this;
 	var time = (new Date()).getTime() / 1000;
 
@@ -752,7 +832,7 @@ Canvas.prototype._tick = function () {
 /**
  * Draw frame
  */
-Canvas.prototype._draw = function () {
+proto._draw = function () {
 	this._updateViewport();
 
 	var size   = this.viewport.size;
@@ -773,7 +853,7 @@ Canvas.prototype._draw = function () {
 	this.ctx.restore();
 };
 
-Canvas.prototype.inverseTransform = function () {
+proto.inverseTransform = function () {
 	if (!this.inverseTrans) {
 		this.inverseTrans = this.transform.invert();
 	}
@@ -784,7 +864,7 @@ Canvas.prototype.inverseTransform = function () {
 /**
  * Start animation loop
  */
-Canvas.prototype.startAnimating = function () {
+proto.startAnimating = function () {
 	var self = this;
 
 	if (!this.animationFrame) {
@@ -797,7 +877,7 @@ Canvas.prototype.startAnimating = function () {
 /**
  * Stop animation loop
  */
-Canvas.prototype.stopAnimating = function () {
+proto.stopAnimating = function () {
 	if (this.animationFrame) {
 		window.cancelAnimationFrame(this.animationFrame);
 		this.animationFrame = null;
@@ -809,14 +889,14 @@ Canvas.prototype.stopAnimating = function () {
  *
  * When resizing
  */
-Canvas.prototype.redraw = function () {
+proto.redraw = function () {
 	this._draw();
 };
 
 /**
  * Get canvas offset from mouse event
  */
-Canvas.prototype.offsetFromEvent = function (e) {
+proto.offsetFromEvent = function (e) {
 	var elem = this.element;
 	var x = elem.offsetLeft;
 	var y = elem.offsetTop;
@@ -830,8 +910,10 @@ Canvas.prototype.offsetFromEvent = function (e) {
 	var scale = this.element.offsetWidth / this.element.width;
 
 	if (!e.changedTouches) {
-		offset.x = e.clientX - offset.x + document.documentElement.scrollLeft;
-		offset.y = e.clientY - offset.y + document.documentElement.scrollTop;
+		var docElem = document.documentElement;
+
+		offset.x = e.clientX - offset.x + docElem.scrollLeft;
+		offset.y = e.clientY - offset.y + docElem.scrollTop;
 	}
 	// is touch event
 	else {
@@ -890,10 +972,12 @@ var Constraint = Tetragon.Constraint = function (p1, p2, restDist, stiffness) {
 	this.stiffness = stiffness;
 }
 
+var proto = Constraint.prototype;
+
 /**
  * Solve step
  */
-Constraint.prototype.solve = function() {
+proto.solve = function() {
 	var p1 = this.p1;
 	var p2 = this.p2;
 

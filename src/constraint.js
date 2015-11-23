@@ -39,10 +39,12 @@ var Constraint = Tetragon.Constraint = function (p1, p2, restDist, stiffness) {
 	this.stiffness = stiffness;
 }
 
+var proto = Constraint.prototype;
+
 /**
  * Solve step
  */
-Constraint.prototype.solve = function() {
+proto.solve = function() {
 	var p1 = this.p1;
 	var p2 = this.p2;
 

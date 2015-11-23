@@ -10,54 +10,56 @@ var Vector = Tetragon.Vector = function (x, y) {
 	this.y = parseFloat(y) || 0.0;
 };
 
-Vector.prototype.add = function (vec) {
+var proto = Vector.prototype;
+
+proto.add = function (vec) {
 	return new Vector(this.x + vec.x, this.y + vec.y);
 };
 
-Vector.prototype.sub = function (vec) {
+proto.sub = function (vec) {
 	return new Vector(this.x - vec.x, this.y - vec.y);
 };
 
-Vector.prototype.inc = function (vec) {
+proto.inc = function (vec) {
 	this.x += vec.x;
 	this.y += vec.y;
 };
 
-Vector.prototype.dec = function (vec) {
+proto.dec = function (vec) {
 	this.x -= vec.x;
 	this.y -= vec.y;
 };
 
-Vector.prototype.shl = function (n) {
+proto.shl = function (n) {
 	return new Vector(
 		this.x << n,
 		this.y << n
 	);
 };
 
-Vector.prototype.shr = function (n) {
+proto.shr = function (n) {
 	return new Vector(
 		this.x >> n,
 		this.y >> n
 	);
 };
 
-Vector.prototype.integ = function (n) {
+proto.integ = function (n) {
 	return new Vector(
 		this.x | 0,
 		this.y | 0
 	);
 };
 
-Vector.prototype.mult = function (fac) {
+proto.mult = function (fac) {
 	return new Vector(this.x * fac, this.y * fac);
 };
 
-Vector.prototype.length = function () {
+proto.length = function () {
 	return Math.sqrt(this.x * this.x + this.y * this.y);
 };
 
-Vector.prototype.normalize = function (length) {
+proto.normalize = function (length) {
 	if (length === undefined) {
 		length = 1.0;
 	}
@@ -76,28 +78,28 @@ Vector.prototype.normalize = function (length) {
 	return new Vector(x, y);
 };
 
-Vector.prototype.multVec = function (vec) {
+proto.multVec = function (vec) {
 	return new Vector(this.x * vec.x, this.y * vec.y);
 };
 
-Vector.prototype.dot = function (vec) {
-	return this.x * vec.x + this.y * vec.y
+proto.dot = function (vec) {
+	return this.x * vec.x + this.y * vec.y;
 };
 
-Vector.prototype.reflect = function (wall) {
+proto.reflect = function (wall) {
 	wall = wall.normalize();
 	return this.sub(wall.mult(2.0 * wall.dot(this)));
 };
 
-Vector.prototype.negate = function (wall) {
+proto.negate = function (wall) {
 	return new Vector(-this.x, -this.y);
 };
 
-Vector.prototype.copy = function () {
+proto.copy = function () {
 	return new Vector(this.x, this.y);
 };
 
-Vector.prototype.rotate = function (a) {
+proto.rotate = function (a) {
 	var r = a / 180.0 * Math.PI;
 	var c = Math.cos(r);
 	var s = Math.sin(r);
@@ -108,7 +110,7 @@ Vector.prototype.rotate = function (a) {
 	return new Vector(x, y);
 };
 
-Vector.prototype.copy = function (a) {
+proto.copy = function (a) {
 	return new Vector(this.x, this.y);
 };
 
