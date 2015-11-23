@@ -1,7 +1,7 @@
 {
-  "name": "tetragon.js",
+  "name": "Tetragon.js",
   "version": "0.1.0",
-  "description": "JavaScript tool library for canvas applications",
+  "description": "Javascript tool library for canvas applications",
   "main": "tetragon.js",
   "scripts": {
     "test": "test"
@@ -22,5 +22,10 @@
   "bugs": {
     "url": "https://github.com/detomon/Tetragon.js/issues"
   },
-  "homepage": "https://github.com/detomon/Tetragon.js#readme"
+  "homepage": "https://github.com/detomon/Tetragon.js",
+  "dependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-uglify": "^0.11.0"
+  }
 }
