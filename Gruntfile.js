@@ -47,7 +47,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-concat-in-order');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 
-	grunt.registerTask('build', [
+	grunt.registerTask('default', [
 		'concat_in_order',
 		'uglify',
 	]);
