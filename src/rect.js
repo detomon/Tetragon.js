@@ -3,12 +3,12 @@
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Rect = Tetragon.Rect = function (p, s) {
-	this.pos  = p ? p.copy() : new Tetragon.Vector();
-	this.size = s ? s.copy() : new Tetragon.Vector();
+var Rect = T.Rect = function (p, s) {
+	this.pos  = p ? p.copy() : new T.Vector();
+	this.size = s ? s.copy() : new T.Vector();
 };
 
 var proto = Rect.prototype;
@@ -66,4 +66,4 @@ proto.intersectsWithRect = function (rect) {
 	return false;
 };
 
-}());
+}(Tetragon));

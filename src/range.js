@@ -3,10 +3,10 @@
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Range = Tetragon.Range = function (start, length) {
+var Range = T.Range = function (start, length) {
 	this.start = start || 0;
 	this.length = length || 0;
 
@@ -36,4 +36,4 @@ proto.intersectsWithRange = function (range) {
 	return range.start < this.end && range.end > this.start;
 };
 
-}());
+}(Tetragon));

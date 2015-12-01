@@ -2,13 +2,13 @@
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
 /**
  * Animation loop
  */
-var AnimationLoop = Tetragon.AnimationLoop = function (framerate) {
+var AnimationLoop = T.AnimationLoop = function (framerate) {
 	this.framerate = framerate;
 	this.lastTime  = 0;
 }
@@ -40,4 +40,4 @@ proto.advanceToTime = function (time, tickFunc) {
 	}
 };
 
-}());
+}(Tetragon));

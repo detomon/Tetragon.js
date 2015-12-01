@@ -3,7 +3,7 @@
  * @depend point-mass.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
 /**
@@ -17,7 +17,7 @@
  *   between `p1` and `p2`
  * If `stiffness` is omitted, it is set to its maximum value 1.0
  */
-var Constraint = Tetragon.Constraint = function (p1, p2, restDist, stiffness) {
+var Constraint = T.Constraint = function (p1, p2, restDist, stiffness) {
 	// set current distance as resting distance if not defined
 	if (restDist === undefined) {
  		restDist = p2.p.sub(p1.p).length();
@@ -86,4 +86,4 @@ proto.solve = function() {
 	}
 };
 
-}());
+}(Tetragon));

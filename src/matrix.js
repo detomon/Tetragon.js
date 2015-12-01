@@ -3,10 +3,10 @@
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Matrix = Tetragon.Matrix = function (values) {
+var Matrix = T.Matrix = function (values) {
 	if (values) {
 		for (var i = 0; i < 6; i ++) {
 			this[i] = values[i];
@@ -27,6 +27,8 @@ var proto = Matrix.prototype;
 proto.translate = function (vec) {
 	this[4] += vec.x * this[0] + vec.y * this[2];
 	this[5] += vec.x * this[1] + vec.y * this[3];
+
+	return this;
 };
 
 proto.scale = function (vec) {
@@ -34,10 +36,12 @@ proto.scale = function (vec) {
 	this[2] *= vec.x;
 	this[1] *= vec.y;
 	this[3] *= vec.y;
+
+	return this;
 };
 
 proto.multVec = function (vec) {
-	return new Tetragon.Vector(
+	return new T.Vector(
 		this[0] * vec.x + this[2] * vec.y + this[4],
 		this[1] * vec.x + this[3] * vec.y + this[5]
 	);
@@ -56,7 +60,7 @@ proto.multiply = function (mat) {
 
 proto.invert = function () {
 	var det;
-	var mat = new Tetragon.Matrix();
+	var mat = new T.Matrix();
 
 	mat[0] =  this[3];
 	mat[1] = -this[1];
@@ -84,7 +88,7 @@ proto.invert = function () {
 };
 
 proto.copy = function () {
-	var mat = new Tetragon.Matrix();
+	var mat = new T.Matrix();
 
 	mat[0] = this[0];
 	mat[1] = this[1];
@@ -100,4 +104,4 @@ proto.setContextTransform = function (ctx) {
 	ctx.setTransform(this[0], this[1], this[2], this[3], this[4], this[5]);
 };
 
-}());
+}(Tetragon));

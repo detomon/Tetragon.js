@@ -3,7 +3,7 @@
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
 /**
@@ -12,7 +12,7 @@
  * The point is initialized with an initial `position` and a `mass`
  * More mass means more inertness
  */
-var PointMass = Tetragon.PointMass = function (position, mass) {
+var PointMass = T.PointMass = function (position, mass) {
 	// current position
 	this.p = position.copy();
 
@@ -20,7 +20,7 @@ var PointMass = Tetragon.PointMass = function (position, mass) {
 	this.pp = position.copy();
 
 	// acceleration for current frame
-	this.a = new Tetragon.Vector(); // null vector
+	this.a = new T.Vector(); // null vector
 
 	// mass; set to 1.0 if not defined
 	this.mass = mass || 1.0;
@@ -58,7 +58,7 @@ proto.inertia = function(dt) {
 	this.p = n;
 
 	// clear acceleration for current step
-	this.a = new Tetragon.Vector();
+	this.a = new T.Vector();
 };
 
 /**
@@ -78,4 +78,4 @@ proto.pin = function() {
 	this.pinned = true;
 };
 
-}());
+}(Tetragon));

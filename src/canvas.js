@@ -5,36 +5,102 @@
  * @depend matrix.js
  */
 
-(function () {
+(function (T) {
 'use strict';
+
+var TRANSFORM_UPDATED = 1 << 0;
+var AUTO_CLEAR        = 1 << 1;
 
 /**
  * Encapsulates canvas animation
  */
-var Canvas = Tetragon.Canvas = function (options) {
-	this.element       = options.element;
-	this.viewport      = new Tetragon.Rect();
-	this.ctx           = options.element.getContext('2d');
-	this.tick          = options.tick || function () {};
-	this.draw          = options.draw || function () {};
-	this.framerate     = options.framerate || (1.0 / 120.0);
-	this.frameDelta    = 0.0;
-	this.animationLoop = new Tetragon.AnimationLoop(this.framerate);
-	this.transform     = new Tetragon.Matrix();
-	this.inverseTrans  = new Tetragon.Matrix();
+var Canvas = T.Canvas = function (options) {
+	options = T.extend({
+		element: null,
+		tick: function () {},
+		draw: function () {},
+		framerate: 1.0 / 120.0,
+		autoClear: true,
+		origin: new T.Vector(0.5, 0.5),
+		scale: null
+	}, options);
 
-	this._updateViewport();
+	this.element       = options.element;
+	this.ctx           = options.element.getContext('2d');
+	this.tick          = options.tick;
+	this.draw          = options.draw;
+	this.framerate     = options.framerate;
+	this.frameDelta    = 0.0;
+	this.animationLoop = new T.AnimationLoop(this.framerate);
+	this._viewport     = new T.Rect();
+	this._transform    = null;
+	this._inverseTrans = null;
+	this._flags        = 0;
+	this.options       = options;
+
+	if (options.autoClear) {
+		this._flags |= AUTO_CLEAR;
+	}
 };
 
 var proto = Canvas.prototype;
 
-proto._updateViewport = function () {
-	var element = this.element;
-	var width   = +element.width;
-	var height  = +element.height;
+Object.defineProperty(proto, 'viewport', {
+	get: function () {
+		var element = this.element;
+		var width   = +element.width;
+		var height  = +element.height;
 
-	this.viewport.size.x = width;
-	this.viewport.size.y = height;
+		this._viewport.size.x = width;
+		this._viewport.size.y = height;
+
+		return this._viewport;
+	}
+});
+
+Object.defineProperty(proto, 'transform', {
+	get: function () {
+		var transform = this._transform;
+
+		if (!transform) {
+			transform = new T.Matrix();
+
+			if (this.options.origin) {
+				transform.translate(this.options.origin.multVec(this.viewport.size));
+			}
+
+			if (this.options.scale) {
+				transform.scale(this.options.scale);
+			}
+		}
+
+		return transform;
+	},
+	set: function (transform) {
+		if (transform) {
+			transform = transform.copy()
+		}
+
+		this._transform = transform;
+		this._transform.setContextTransform(this.ctx);
+		this._flags |= TRANSFORM_UPDATED;
+	}
+});
+
+Object.defineProperty(proto, 'inverseTransform', {
+	get: function () {
+		if (this._flags & TRANSFORM_UPDATED) {
+			this._inverseTrans = this._transform.invert();
+			this._flags &= ~TRANSFORM_UPDATED;
+		}
+
+		return this._inverseTrans.copy();
+	}
+});
+
+proto._updateTransform = function (transform) {
+	transform = transform || this.transform;
+	transform.setContextTransform(this.ctx);
 };
 
 /**
@@ -43,8 +109,6 @@ proto._updateViewport = function () {
 proto._tick = function () {
 	var self = this;
 	var time = (new Date()).getTime() / 1000;
-
-	this._updateViewport();
 
 	this.animationLoop.advanceToTime(time, function () {
 		self.tick(self.framerate, {
@@ -60,36 +124,38 @@ proto._tick = function () {
 	});
 };
 
-/**
- * Draw frame
- */
-proto._draw = function () {
-	this._updateViewport();
-
+proto.clear = function () {
+	var transform;
 	var size   = this.viewport.size;
 	var width  = size.x;
 	var height = size.y;
 
-	this.ctx.clearRect(0, 0, width, height);
 	this.ctx.save();
 
-	this.transform = new Tetragon.Matrix();
-	this.inverseTrans = null;
+	this._updateTransform(new T.Matrix());
+	this.ctx.clearRect(0, 0, width, height);
+	this._updateTransform();
 
-	this.draw(this.ctx, {
+	this.ctx.restore();
+};
+
+/**
+ * Draw frame
+ */
+proto._draw = function () {
+	if (this._flags & AUTO_CLEAR) {
+		this.clear();
+	}
+
+	this.ctx.save();
+	this._updateTransform();
+
+	this.draw.call(this, this.ctx, {
 		viewport: this.viewport,
 		frameDelta: this.frameDelta
 	});
 
 	this.ctx.restore();
-};
-
-proto.inverseTransform = function () {
-	if (!this.inverseTrans) {
-		this.inverseTrans = this.transform.invert();
-	}
-
-	return this.inverseTrans;
 };
 
 /**
@@ -137,7 +203,7 @@ proto.offsetFromEvent = function (e) {
 		y += elem.offsetTop;
 	}
 
-	var offset = new Tetragon.Vector(x, y);
+	var offset = new T.Vector(x, y);
 	var scale = this.element.offsetWidth / this.element.width;
 
 	if (!e.changedTouches) {
@@ -160,4 +226,4 @@ proto.offsetFromEvent = function (e) {
 	return offset;
 };
 
-}());
+}(Tetragon));

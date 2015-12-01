@@ -2,10 +2,10 @@
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var EntityComponent = Tetragon.EntityComponent = function (id, options) {
+var EntityComponent = T.EntityComponent = function (id, options) {
 	this.id = id;
 	this.name = options.name;
 	this.options = options;
@@ -51,4 +51,4 @@ proto.iterate = function (func) {
 	}
 };
 
-}());
+}(Tetragon));

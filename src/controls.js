@@ -2,10 +2,10 @@
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Controls = Tetragon.Controls = function () {
+var Controls = T.Controls = function () {
 	this.keys = 0;
 };
 
@@ -48,4 +48,4 @@ proto.reset = function () {
 	this.keys = 0;
 };
 
-}());
+}(Tetragon));

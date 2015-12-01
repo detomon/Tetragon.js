@@ -3,10 +3,10 @@
  * @depend entity-component.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var EntitySystem = Tetragon.EntitySystem = function () {
+var EntitySystem = T.EntitySystem = function () {
 	this.entities = [];
 	this.freeEntites = [];
 	this.components = [];
@@ -21,7 +21,7 @@ proto.component = function (name) {
 
 proto.createComponent = function (options) {
 	var id = this.components.length;
-	var component = new Tetragon.EntityComponent(id, options);
+	var component = new T.EntityComponent(id, options);
 	this.components.push(component);
 	this.namedComponents[component.name] = component;
 
@@ -44,7 +44,7 @@ proto.createEntity = function () {
 		this.entities.push(0);
 	}
 
-	return new Tetragon.Entity(id, this);
+	return new T.Entity(id, this);
 };
 
 proto.iterate = function (name, func) {
@@ -57,4 +57,4 @@ proto.iterate = function (name, func) {
 	}
 };
 
-}());
+}(Tetragon));

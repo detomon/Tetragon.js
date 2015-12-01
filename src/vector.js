@@ -2,10 +2,10 @@
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Vector = Tetragon.Vector = function (x, y) {
+var Vector = T.Vector = function (x, y) {
 	this.x = parseFloat(x) || 0.0;
 	this.y = parseFloat(y) || 0.0;
 };
@@ -114,4 +114,4 @@ proto.copy = function (a) {
 	return new Vector(this.x, this.y);
 };
 
-}());
+}(Tetragon));

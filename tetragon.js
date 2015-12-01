@@ -38,10 +38,10 @@ w.Tetragon = w.Tetragon || {};
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Vector = Tetragon.Vector = function (x, y) {
+var Vector = T.Vector = function (x, y) {
 	this.x = parseFloat(x) || 0.0;
 	this.y = parseFloat(y) || 0.0;
 };
@@ -150,19 +150,19 @@ proto.copy = function (a) {
 	return new Vector(this.x, this.y);
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
 /**
  * Animation loop
  */
-var AnimationLoop = Tetragon.AnimationLoop = function (framerate) {
+var AnimationLoop = T.AnimationLoop = function (framerate) {
 	this.framerate = framerate;
 	this.lastTime  = 0;
 }
@@ -194,16 +194,16 @@ proto.advanceToTime = function (time, tickFunc) {
 	}
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Controls = Tetragon.Controls = function () {
+var Controls = T.Controls = function () {
 	this.keys = 0;
 };
 
@@ -246,16 +246,16 @@ proto.reset = function () {
 	this.keys = 0;
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var EntityComponent = Tetragon.EntityComponent = function (id, options) {
+var EntityComponent = T.EntityComponent = function (id, options) {
 	this.id = id;
 	this.name = options.name;
 	this.options = options;
@@ -301,17 +301,17 @@ proto.iterate = function (func) {
 	}
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  * @depend entity-component.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var EntitySystem = Tetragon.EntitySystem = function () {
+var EntitySystem = T.EntitySystem = function () {
 	this.entities = [];
 	this.freeEntites = [];
 	this.components = [];
@@ -326,7 +326,7 @@ proto.component = function (name) {
 
 proto.createComponent = function (options) {
 	var id = this.components.length;
-	var component = new Tetragon.EntityComponent(id, options);
+	var component = new T.EntityComponent(id, options);
 	this.components.push(component);
 	this.namedComponents[component.name] = component;
 
@@ -349,7 +349,7 @@ proto.createEntity = function () {
 		this.entities.push(0);
 	}
 
-	return new Tetragon.Entity(id, this);
+	return new T.Entity(id, this);
 };
 
 proto.iterate = function (name, func) {
@@ -362,7 +362,7 @@ proto.iterate = function (name, func) {
 	}
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
@@ -370,10 +370,10 @@ proto.iterate = function (name, func) {
  * @depend entity-component.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Entity = Tetragon.Entity = function (id, system) {
+var Entity = T.Entity = function (id, system) {
 	this.id = id;
 	this.system = system;
 };
@@ -469,17 +469,46 @@ proto.delete = function () {
 	system.freeEntites.push(this.id);
 };
 
-}());
+}(Tetragon));
+
+/**
+ * @depend tetragon.js
+ */
+
+(function (T) {
+'use strict';
+
+T.extend = function (obj, obj2) {
+	var i, j;
+	var arg;
+	var args = Array.prototype.slice.call(arguments, 1);
+
+	for (i = 0; i < args.length; i ++) {
+		var arg = args[i];
+
+		for (j in arg) {
+			if (arg.hasOwnProperty(j)) {
+				if (arg[j] !== null && arg[j] !== undefined) {
+					obj[j] = arg[j];
+				}
+			}
+		}
+	}
+
+	return obj;
+}
+
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Matrix = Tetragon.Matrix = function (values) {
+var Matrix = T.Matrix = function (values) {
 	if (values) {
 		for (var i = 0; i < 6; i ++) {
 			this[i] = values[i];
@@ -500,6 +529,8 @@ var proto = Matrix.prototype;
 proto.translate = function (vec) {
 	this[4] += vec.x * this[0] + vec.y * this[2];
 	this[5] += vec.x * this[1] + vec.y * this[3];
+
+	return this;
 };
 
 proto.scale = function (vec) {
@@ -507,10 +538,12 @@ proto.scale = function (vec) {
 	this[2] *= vec.x;
 	this[1] *= vec.y;
 	this[3] *= vec.y;
+
+	return this;
 };
 
 proto.multVec = function (vec) {
-	return new Tetragon.Vector(
+	return new T.Vector(
 		this[0] * vec.x + this[2] * vec.y + this[4],
 		this[1] * vec.x + this[3] * vec.y + this[5]
 	);
@@ -529,7 +562,7 @@ proto.multiply = function (mat) {
 
 proto.invert = function () {
 	var det;
-	var mat = new Tetragon.Matrix();
+	var mat = new T.Matrix();
 
 	mat[0] =  this[3];
 	mat[1] = -this[1];
@@ -557,7 +590,7 @@ proto.invert = function () {
 };
 
 proto.copy = function () {
-	var mat = new Tetragon.Matrix();
+	var mat = new T.Matrix();
 
 	mat[0] = this[0];
 	mat[1] = this[1];
@@ -573,14 +606,14 @@ proto.setContextTransform = function (ctx) {
 	ctx.setTransform(this[0], this[1], this[2], this[3], this[4], this[5]);
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
 /**
@@ -589,7 +622,7 @@ proto.setContextTransform = function (ctx) {
  * The point is initialized with an initial `position` and a `mass`
  * More mass means more inertness
  */
-var PointMass = Tetragon.PointMass = function (position, mass) {
+var PointMass = T.PointMass = function (position, mass) {
 	// current position
 	this.p = position.copy();
 
@@ -597,7 +630,7 @@ var PointMass = Tetragon.PointMass = function (position, mass) {
 	this.pp = position.copy();
 
 	// acceleration for current frame
-	this.a = new Tetragon.Vector(); // null vector
+	this.a = new T.Vector(); // null vector
 
 	// mass; set to 1.0 if not defined
 	this.mass = mass || 1.0;
@@ -635,7 +668,7 @@ proto.inertia = function(dt) {
 	this.p = n;
 
 	// clear acceleration for current step
-	this.a = new Tetragon.Vector();
+	this.a = new T.Vector();
 };
 
 /**
@@ -655,17 +688,17 @@ proto.pin = function() {
 	this.pinned = true;
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Range = Tetragon.Range = function (start, length) {
+var Range = T.Range = function (start, length) {
 	this.start = start || 0;
 	this.length = length || 0;
 
@@ -695,19 +728,19 @@ proto.intersectsWithRange = function (range) {
 	return range.start < this.end && range.end > this.start;
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  * @depend vector.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Rect = Tetragon.Rect = function (p, s) {
-	this.pos  = p ? p.copy() : new Tetragon.Vector();
-	this.size = s ? s.copy() : new Tetragon.Vector();
+var Rect = T.Rect = function (p, s) {
+	this.pos  = p ? p.copy() : new T.Vector();
+	this.size = s ? s.copy() : new T.Vector();
 };
 
 var proto = Rect.prototype;
@@ -765,7 +798,7 @@ proto.intersectsWithRect = function (rect) {
 	return false;
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
@@ -774,36 +807,102 @@ proto.intersectsWithRect = function (rect) {
  * @depend matrix.js
  */
 
-(function () {
+(function (T) {
 'use strict';
+
+var TRANSFORM_UPDATED = 1 << 0;
+var AUTO_CLEAR        = 1 << 1;
 
 /**
  * Encapsulates canvas animation
  */
-var Canvas = Tetragon.Canvas = function (options) {
-	this.element       = options.element;
-	this.viewport      = new Tetragon.Rect();
-	this.ctx           = options.element.getContext('2d');
-	this.tick          = options.tick || function () {};
-	this.draw          = options.draw || function () {};
-	this.framerate     = options.framerate || (1.0 / 120.0);
-	this.frameDelta    = 0.0;
-	this.animationLoop = new Tetragon.AnimationLoop(this.framerate);
-	this.transform     = new Tetragon.Matrix();
-	this.inverseTrans  = new Tetragon.Matrix();
+var Canvas = T.Canvas = function (options) {
+	options = T.extend({
+		element: null,
+		tick: function () {},
+		draw: function () {},
+		framerate: 1.0 / 120.0,
+		autoClear: true,
+		origin: new T.Vector(0.5, 0.5),
+		scale: null
+	}, options);
 
-	this._updateViewport();
+	this.element       = options.element;
+	this.ctx           = options.element.getContext('2d');
+	this.tick          = options.tick;
+	this.draw          = options.draw;
+	this.framerate     = options.framerate;
+	this.frameDelta    = 0.0;
+	this.animationLoop = new T.AnimationLoop(this.framerate);
+	this._viewport     = new T.Rect();
+	this._transform    = null;
+	this._inverseTrans = null;
+	this._flags        = 0;
+	this.options       = options;
+
+	if (options.autoClear) {
+		this._flags |= AUTO_CLEAR;
+	}
 };
 
 var proto = Canvas.prototype;
 
-proto._updateViewport = function () {
-	var element = this.element;
-	var width   = +element.width;
-	var height  = +element.height;
+Object.defineProperty(proto, 'viewport', {
+	get: function () {
+		var element = this.element;
+		var width   = +element.width;
+		var height  = +element.height;
 
-	this.viewport.size.x = width;
-	this.viewport.size.y = height;
+		this._viewport.size.x = width;
+		this._viewport.size.y = height;
+
+		return this._viewport;
+	}
+});
+
+Object.defineProperty(proto, 'transform', {
+	get: function () {
+		var transform = this._transform;
+
+		if (!transform) {
+			transform = new T.Matrix();
+
+			if (this.options.origin) {
+				transform.translate(this.options.origin.multVec(this.viewport.size));
+			}
+
+			if (this.options.scale) {
+				transform.scale(this.options.scale);
+			}
+		}
+
+		return transform;
+	},
+	set: function (transform) {
+		if (transform) {
+			transform = transform.copy()
+		}
+
+		this._transform = transform;
+		this._transform.setContextTransform(this.ctx);
+		this._flags |= TRANSFORM_UPDATED;
+	}
+});
+
+Object.defineProperty(proto, 'inverseTransform', {
+	get: function () {
+		if (this._flags & TRANSFORM_UPDATED) {
+			this._inverseTrans = this._transform.invert();
+			this._flags &= ~TRANSFORM_UPDATED;
+		}
+
+		return this._inverseTrans.copy();
+	}
+});
+
+proto._updateTransform = function (transform) {
+	transform = transform || this.transform;
+	transform.setContextTransform(this.ctx);
 };
 
 /**
@@ -812,8 +911,6 @@ proto._updateViewport = function () {
 proto._tick = function () {
 	var self = this;
 	var time = (new Date()).getTime() / 1000;
-
-	this._updateViewport();
 
 	this.animationLoop.advanceToTime(time, function () {
 		self.tick(self.framerate, {
@@ -829,36 +926,38 @@ proto._tick = function () {
 	});
 };
 
-/**
- * Draw frame
- */
-proto._draw = function () {
-	this._updateViewport();
-
+proto.clear = function () {
+	var transform;
 	var size   = this.viewport.size;
 	var width  = size.x;
 	var height = size.y;
 
-	this.ctx.clearRect(0, 0, width, height);
 	this.ctx.save();
 
-	this.transform = new Tetragon.Matrix();
-	this.inverseTrans = null;
+	this._updateTransform(new T.Matrix());
+	this.ctx.clearRect(0, 0, width, height);
+	this._updateTransform();
 
-	this.draw(this.ctx, {
+	this.ctx.restore();
+};
+
+/**
+ * Draw frame
+ */
+proto._draw = function () {
+	if (this._flags & AUTO_CLEAR) {
+		this.clear();
+	}
+
+	this.ctx.save();
+	this._updateTransform();
+
+	this.draw.call(this, this.ctx, {
 		viewport: this.viewport,
 		frameDelta: this.frameDelta
 	});
 
 	this.ctx.restore();
-};
-
-proto.inverseTransform = function () {
-	if (!this.inverseTrans) {
-		this.inverseTrans = this.transform.invert();
-	}
-
-	return this.inverseTrans;
 };
 
 /**
@@ -906,7 +1005,7 @@ proto.offsetFromEvent = function (e) {
 		y += elem.offsetTop;
 	}
 
-	var offset = new Tetragon.Vector(x, y);
+	var offset = new T.Vector(x, y);
 	var scale = this.element.offsetWidth / this.element.width;
 
 	if (!e.changedTouches) {
@@ -929,14 +1028,14 @@ proto.offsetFromEvent = function (e) {
 	return offset;
 };
 
-}());
+}(Tetragon));
 
 /**
  * @depend tetragon.js
  * @depend point-mass.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
 /**
@@ -950,7 +1049,7 @@ proto.offsetFromEvent = function (e) {
  *   between `p1` and `p2`
  * If `stiffness` is omitted, it is set to its maximum value 1.0
  */
-var Constraint = Tetragon.Constraint = function (p1, p2, restDist, stiffness) {
+var Constraint = T.Constraint = function (p1, p2, restDist, stiffness) {
 	// set current distance as resting distance if not defined
 	if (restDist === undefined) {
  		restDist = p2.p.sub(p1.p).length();
@@ -1019,4 +1118,4 @@ proto.solve = function() {
 	}
 };
 
-}());
+}(Tetragon));

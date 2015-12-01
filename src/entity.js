@@ -4,10 +4,10 @@
  * @depend entity-component.js
  */
 
-(function () {
+(function (T) {
 'use strict';
 
-var Entity = Tetragon.Entity = function (id, system) {
+var Entity = T.Entity = function (id, system) {
 	this.id = id;
 	this.system = system;
 };
@@ -103,4 +103,4 @@ proto.delete = function () {
 	system.freeEntites.push(this.id);
 };
 
-}());
+}(Tetragon));
