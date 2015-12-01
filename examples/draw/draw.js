@@ -19,11 +19,6 @@ var controller = new T.Canvas({
 	}
 });
 
-/*var mat = controller.transform.translate(new T.Vector(-200, -200));
-controller.transform = mat;
-
-console.log(mat);*/
-
 controller.startAnimating();
 
 }(Tetragon));

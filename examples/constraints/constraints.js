@@ -58,11 +58,11 @@ var point1 = system.createEntity();
 var point2 = system.createEntity();
 var constraint = system.createEntity();
 
-point1.addComponent('position', new T.Vector(200, 120));
-var p1 = point1.addComponent('pointMass', new T.Vector(200, 120));
+point1.addComponent('position', new T.Vector(-200, -200));
+var p1 = point1.addComponent('pointMass', new T.Vector(-200, -200));
 
-point2.addComponent('position', new T.Vector(400, 120));
-var p2 = point2.addComponent('pointMass', new T.Vector(400, 120));
+point2.addComponent('position', new T.Vector(0, -200));
+var p2 = point2.addComponent('pointMass', new T.Vector(0, -200));
 
 point1.addComponent('draw');
 point2.addComponent('draw');
