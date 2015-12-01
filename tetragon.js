@@ -276,7 +276,7 @@ var proto = EntityComponent.prototype;
  */
 proto.iterate = function (func) {
 	var i;
-	var args = Array.prototype.slice.apply(arguments, [1]);
+	var args = Array.prototype.slice.call(arguments, 1);
 
 	if (typeof(func) === "function") {
 		for (i in this.data) {
@@ -353,7 +353,7 @@ proto.createEntity = function () {
 };
 
 proto.iterate = function (name, func) {
-	var args = Array.prototype.slice.apply(arguments, [2]);
+	var args = Array.prototype.slice.call(arguments, 2);
 	var component = this.component(name);
 
 	if (component) {
@@ -381,7 +381,7 @@ var Entity = T.Entity = function (id, system) {
 var proto = Entity.prototype;
 
 proto.addComponent = function (component) {
-	var args = Array.prototype.slice.apply(arguments, [1]);
+	var args = Array.prototype.slice.call(arguments, 1);
 
 	if (typeof(component) == 'string') {
 		component = this.system.component(component);

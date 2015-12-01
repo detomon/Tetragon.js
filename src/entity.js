@@ -15,7 +15,7 @@ var Entity = T.Entity = function (id, system) {
 var proto = Entity.prototype;
 
 proto.addComponent = function (component) {
-	var args = Array.prototype.slice.apply(arguments, [1]);
+	var args = Array.prototype.slice.call(arguments, 1);
 
 	if (typeof(component) == 'string') {
 		component = this.system.component(component);

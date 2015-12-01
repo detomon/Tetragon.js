@@ -48,7 +48,7 @@ proto.createEntity = function () {
 };
 
 proto.iterate = function (name, func) {
-	var args = Array.prototype.slice.apply(arguments, [2]);
+	var args = Array.prototype.slice.call(arguments, 2);
 	var component = this.component(name);
 
 	if (component) {
