@@ -635,6 +635,17 @@ var PointMass = T.PointMass = function (position, mass) {
 	// mass; set to 1.0 if not defined
 	this.mass = mass || 1.0;
 
+	// inverse mass
+	if (this.mass == 0.0) {
+		this.invMass = Number.MAX_VALUE;
+	}
+	else if (this.mass == Number.MAX_VALUE) {
+		this.invMass = 0.0;
+	}
+	else {
+		this.invMass = 1.0 / this.mass;
+	}
+
 	// set default damping value
 	this.damping = 0.997;
 
@@ -677,7 +688,7 @@ proto.inertia = function(dt) {
 proto.applyForce = function(force) {
 	// add force multiplied with inverse of mass
 	// a += force * (1.0 / mass)
-	this.a = this.a.add(force.mult(1.0 / this.mass));
+	this.a = this.a.add(force.mult(this.invMass));
 };
 
 /**
