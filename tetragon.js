@@ -667,6 +667,10 @@ proto.inertia = function(dt) {
 	// v = (p - pp) * damping
 	var v = this.p.sub(this.pp).mult(this.damping);
 
+	// this is more accurate, but also slower
+	// v = (p - pp) * damping ^ dt
+	//var v = this.p.sub(this.pp).mult(Math.pow(this.damping, dt));
+
 	// calculate next position by adding velocity
 	// and acceleration to current position
 	// n = p + v + a * dtf
