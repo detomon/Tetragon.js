@@ -91,8 +91,16 @@ proto.mult = function (fac) {
 	return new Vector(this.x * fac, this.y * fac);
 };
 
+proto.div = function (fac) {
+	return new Vector(this.x / fac, this.y / fac);
+};
+
 proto.length = function () {
 	return Math.sqrt(this.x * this.x + this.y * this.y);
+};
+
+proto.lengthSquared = function () {
+	return this.x * this.x + this.y * this.y;
 };
 
 proto.normalize = function (length) {
@@ -116,6 +124,10 @@ proto.normalize = function (length) {
 
 proto.multVec = function (vec) {
 	return new Vector(this.x * vec.x, this.y * vec.y);
+};
+
+proto.divVec = function (vec) {
+	return new Vector(this.x / vec.x, this.y / vec.y);
 };
 
 proto.dot = function (vec) {
@@ -496,7 +508,71 @@ T.extend = function (obj, obj2) {
 	}
 
 	return obj;
-}
+};
+
+T.reduce = function (items, initValue, reduce) {
+	var i;
+	var value = initValue;
+
+	for (i = 0; i < items.length; i ++) {
+		value = reduce(value, items[i]);
+	}
+
+	return value;
+};
+
+T.loadImages = function (images, options) {
+	var i;
+	var options    = options || {};
+	var loadCount  = 0;
+	var loadedImgs = {};
+
+	function waitForLoad(src) {
+		var image = new Image();
+
+		image.onload = function () {
+			if (!loadedImgs[src]) {
+				loadedImgs[src] = image;
+
+				if (options.load) {
+					options.load(image);
+				}
+
+				if (++ loadCount >= images.length) {
+					if (options.done) {
+						options.done(loadedImgs);
+					}
+				}
+			}
+		};
+
+		image.src = src;
+
+		return image;
+	}
+
+	options = T.extend({
+		done: null,
+		load: null
+	}, options);
+
+	if (images.length == 0) {
+		if (options.done) {
+			options.done(loadedImgs);
+		}
+	}
+
+	for (i = 0; i < images.length; i ++) {
+		var src = images[i];
+
+		// assuming an image element
+		if (src === Object(src)) {
+			src = src.src;
+		}
+
+		waitForLoad(src);
+	}
+};
 
 }(Tetragon));
 
