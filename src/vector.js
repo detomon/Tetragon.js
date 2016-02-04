@@ -55,8 +55,16 @@ proto.mult = function (fac) {
 	return new Vector(this.x * fac, this.y * fac);
 };
 
+proto.div = function (fac) {
+	return new Vector(this.x / fac, this.y / fac);
+};
+
 proto.length = function () {
 	return Math.sqrt(this.x * this.x + this.y * this.y);
+};
+
+proto.lengthSquared = function () {
+	return this.x * this.x + this.y * this.y;
 };
 
 proto.normalize = function (length) {
@@ -80,6 +88,10 @@ proto.normalize = function (length) {
 
 proto.multVec = function (vec) {
 	return new Vector(this.x * vec.x, this.y * vec.y);
+};
+
+proto.divVec = function (vec) {
+	return new Vector(this.x / vec.x, this.y / vec.y);
 };
 
 proto.dot = function (vec) {
