@@ -6,9 +6,9 @@ module.exports = function(grunt) {
 		uglify: {
 			build: {
 				src: [
-					'dist/tetragon.js'
+					'tetragon.js'
 				],
-				dest: 'dist/tetragon.min.js',
+				dest: 'tetragon.min.js',
 				options: {
 					sourceMap: true,
 					sourceMapIncludeSources: true
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
 		concat_in_order: {
 			build: {
 				files: {
-					'dist/tetragon.js': ['src/*.js']
+					'tetragon.js': ['src/*.js']
 				},
 				options: {
 					extractRequired: function(filepath, filecontent) {
