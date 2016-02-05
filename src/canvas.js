@@ -95,6 +95,10 @@ Object.defineProperty(proto, 'inverseTransform', {
 			this._flags &= ~TRANSFORM_UPDATED;
 		}
 
+		if (!this._inverseTrans) {
+			this._inverseTrans = this.transform.invert();
+		}
+
 		return this._inverseTrans.copy();
 	}
 });
