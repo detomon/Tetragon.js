@@ -229,9 +229,6 @@ proto.offsetFromEvent = function (e) {
 		offset.y = e.changedTouches[0].pageY - offset.y;
 	}
 
-	offset.x -= this.element.offsetWidth * 0.5;
-	offset.y -= this.element.offsetHeight * 0.5;
-
 	offset = offset.mult(1.0 / scale);
 
 	return offset;
