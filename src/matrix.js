@@ -8,17 +8,14 @@
 
 var Matrix = T.Matrix = function (values) {
 	if (values) {
-		for (var i = 0; i < 6; i ++) {
-			this[i] = values[i];
-		}
+		this.set(values);
 	}
 	else {
-		this[0] = 1;
-		this[1] = 0;
-		this[2] = 0;
-		this[3] = 1;
-		this[4] = 0;
-		this[5] = 0;
+		this.set([
+			1, 0,
+			0, 1,
+			0, 0,
+		]);
 	}
 };
 
@@ -36,6 +33,24 @@ proto.scale = function (vec) {
 	this[2] *= vec.x;
 	this[1] *= vec.y;
 	this[3] *= vec.y;
+
+	return this;
+};
+
+proto.rotate = function (a) {
+	var s, c;
+
+	a = a / 180.0 * Math.PI;
+	s = Math.sin(a);
+	c = Math.cos(a);
+
+	var m = this.multiply(new T.Matrix([
+		c, s,
+		-s, c,
+		0, 0,
+	]));
+
+	this.set(m);
 
 	return this;
 };
@@ -98,6 +113,17 @@ proto.copy = function () {
 	mat[5] = this[5];
 
 	return mat;
+};
+
+proto.set = function (mat) {
+	this[0] = mat[0];
+	this[1] = mat[1];
+	this[2] = mat[2];
+	this[3] = mat[3];
+	this[4] = mat[4];
+	this[5] = mat[5];
+
+	return this;
 };
 
 proto.setContextTransform = function (ctx) {
