@@ -238,6 +238,19 @@ proto.offsetFromEvent = function (e) {
 };
 
 /**
+ * Get world position from relative pixel offset
+ */
+proto.worldPositionFromOffset = function (offset) {
+	return this.inverseTransform.multVec(offset);
+};
+
+/**
+ * Get relative pixel offset from world position
+ */
+proto.offsetFromWorldPosition = function (offset) {
+	return this.transform.multVec(offset);
+};
+/**
  * Window resize handler
  */
 proto._resizeEventHandler = null;
