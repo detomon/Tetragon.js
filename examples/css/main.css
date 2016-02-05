@@ -1,14 +1,17 @@
 html, body {
 	margin: 0;
+	height: 100%;
 	background: #f7f7f7;
 }
 
 .canvas-wrapper {
-	width: 800px;
+	max-width: 800px;
 	margin: 0 auto;
 	background: #ffffff;
 }
 
-.canvas-wrapper .canvas {
+canvas {
+	width: 100%;
+	height: auto;
 	display: block;
 }
