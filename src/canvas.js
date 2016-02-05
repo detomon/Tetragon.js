@@ -90,13 +90,9 @@ Object.defineProperty(proto, 'transform', {
 
 Object.defineProperty(proto, 'inverseTransform', {
 	get: function () {
-		if (this._flags & TRANSFORM_UPDATED) {
-			this._inverseTrans = this._transform.invert();
-			this._flags &= ~TRANSFORM_UPDATED;
-		}
-
-		if (!this._inverseTrans) {
+		if (this._flags & TRANSFORM_UPDATED || !this._inverseTrans) {
 			this._inverseTrans = this.transform.invert();
+			this._flags &= ~TRANSFORM_UPDATED;
 		}
 
 		return this._inverseTrans.copy();
