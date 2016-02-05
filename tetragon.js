@@ -915,7 +915,8 @@ var Canvas = T.Canvas = function (options) {
 		framerate: 1.0 / 120.0,
 		autoClear: true,
 		origin: new T.Vector(0.5, 0.5),
-		scale: null
+		scale: null,
+		autoSetHeight: /MSIE/.test(navigator.userAgent), // IE 10 and below
 	}, options);
 
 	this.element       = options.element;
@@ -1061,6 +1062,10 @@ proto.startAnimating = function () {
 		this.animationFrame = window.requestAnimationFrame(function () {
 			self._tick();
 		});
+
+		if (this.options.autoSetHeight) {
+			this._addResizeListener();
+		}
 	}
 };
 
@@ -1071,6 +1076,8 @@ proto.stopAnimating = function () {
 	if (this.animationFrame) {
 		window.cancelAnimationFrame(this.animationFrame);
 		this.animationFrame = null;
+
+		this._removeResizeListener();
 	}
 };
 
@@ -1117,6 +1124,43 @@ proto.offsetFromEvent = function (e) {
 	offset = offset.mult(1.0 / scale);
 
 	return offset;
+};
+
+/**
+ * Window resize handler
+ */
+proto._resizeEventHandler = null;
+
+/**
+ * Add event listeners for window resize
+ */
+proto._addResizeListener = function () {
+	var self = this;
+
+	if (!this._resizeEventHandler) {
+		this._resizeEventHandler = function () {
+			var parentNode = self.element.parentNode;
+			var rect = parentNode.getBoundingClientRect();
+			var ratio = self.element.height / self.element.width;
+
+			self.element.style.height = parseInt(rect.width * ratio) + 'px';
+		};
+
+		window.addEventListener('resize', this._resizeEventHandler);
+		window.addEventListener('orientationchange', this._resizeEventHandler);
+		this._resizeEventHandler();
+	}
+};
+
+/**
+ * Remove event listeners for window resize
+ */
+proto._removeResizeListener = function () {
+	if (this._resizeEventHandler) {
+		window.removeEventListener('resize', this._resizeEventHandler);
+		window.removeEventListener('orientationchange', this._resizeEventHandler);
+		this._resizeEventHandler = null;
+	}
 };
 
 }(Tetragon));
