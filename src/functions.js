@@ -38,22 +38,23 @@ T.reduce = function (items, initValue, reduce) {
 
 T.loadImages = function (images, options) {
 	var i;
+	var keys;
 	var options    = options || {};
 	var loadCount  = 0;
 	var loadedImgs = {};
 
-	function waitForLoad(src) {
+	function waitForLoad(src, key) {
 		var image = new Image();
 
 		image.onload = function () {
-			if (!loadedImgs[src]) {
-				loadedImgs[src] = image;
+			if (!loadedImgs[key]) {
+				loadedImgs[key] = image;
 
 				if (options.load) {
 					options.load(image);
 				}
 
-				if (++ loadCount >= images.length) {
+				if (++ loadCount >= keys.length) {
 					if (options.done) {
 						options.done(loadedImgs);
 					}
@@ -71,21 +72,24 @@ T.loadImages = function (images, options) {
 		load: null
 	}, options);
 
-	if (images.length == 0) {
+	keys = Object.keys(images);
+
+	if (keys.length == 0) {
 		if (options.done) {
 			options.done(loadedImgs);
 		}
 	}
 
-	for (i = 0; i < images.length; i ++) {
-		var src = images[i];
+	for (i = 0; i < keys.length; i ++) {
+		var key = keys[i];
+		var src = images[key];
 
 		// assuming an image element
 		if (src === Object(src)) {
 			src = src.src;
 		}
 
-		waitForLoad(src);
+		waitForLoad(src, key);
 	}
 };
 
