@@ -103,16 +103,7 @@ proto.invert = function () {
 };
 
 proto.copy = function () {
-	var mat = new T.Matrix();
-
-	mat[0] = this[0];
-	mat[1] = this[1];
-	mat[2] = this[2];
-	mat[3] = this[3];
-	mat[4] = this[4];
-	mat[5] = this[5];
-
-	return mat;
+	return new T.Matrix(this);
 };
 
 proto.set = function (mat) {
