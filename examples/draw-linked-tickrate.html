@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Draw</title>
+	<title>Draw with linked tick rate</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width" />
 	<link href="css/main.css" rel="stylesheet" />
@@ -12,23 +12,27 @@
 	<canvas width="800" height="600" id="canvas"></canvas>
 </div>
 
-<script src="../dist/tetragon.js"></script>
+<script src="../tetragon.js"></script>
 <script>
 
 var r = 0;
 var canvas = document.getElementById('canvas');
+var speed = 90 * (Math.PI / 180); // 90° / sec
+var lastdt;
 
 var controller = new Tetragon.Canvas({
 	element: canvas,
+	framerate: 0, // link with draw framerate
 	tick: function (dt, info) {
-		// 90° / sec
-		r += 90 * (Math.PI / 180) * dt;
+		r += speed * dt;
+		lastdt = dt;
 	},
 	draw: function (ctx, info) {
 		var x = Math.cos(r) * 100;
 		var y = Math.sin(r) * 100;
 
 		ctx.fillRect(x, y, 10, 10);
+		ctx.fillText(lastdt, 0, 150);
 	}
 });
 

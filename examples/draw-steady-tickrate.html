@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Draw with steady tick rate</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<link href="css/main.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="canvas-wrapper">
+	<canvas width="800" height="600" id="canvas"></canvas>
+</div>
+
+<script src="../tetragon.js"></script>
+<script>
+
+var r = 0;
+var canvas = document.getElementById('canvas');
+var speed = 90 * (Math.PI / 180); // 90° / sec
+var lastdt;
+
+var controller = new Tetragon.Canvas({
+	element: canvas,
+	framerate: 1.0/ 120.0, // use steady tick rate
+	tick: function (dt, info) {
+		r += speed * dt;
+		lastdt = dt;
+	},
+	draw: function (ctx, info) {
+		var r2 = r + speed * info.frameDelta; // add delta time to current frame
+
+		var x = Math.cos(r2) * 100;
+		var y = Math.sin(r2) * 100;
+
+		ctx.fillRect(x, y, 10, 10);
+		ctx.fillText(lastdt, 0, 150);
+	}
+});
+
+controller.startAnimating();
+
+</script>
+
+</body>
+</html>
