@@ -31,7 +31,6 @@ var Canvas = T.Canvas = function (options) {
 	this.tick          = options.tick;
 	this.draw          = options.draw;
 	this.framerate     = options.framerate;
-	this.frameDelta    = 0.0;
 	this.animationLoop = new T.AnimationLoop(this.framerate);
 	this._viewport     = new T.Rect();
 	this._transform    = null;
@@ -110,15 +109,39 @@ proto._updateTransform = function (transform) {
 proto._tick = function () {
 	var self = this;
 	var time = (new Date()).getTime() / 1000;
+	var info = {viewport: self.viewport};
 
-	this.animationLoop.advanceToTime(time, function () {
-		self.tick(self.framerate, {
-			viewport: self.viewport,
+	if (this.framerate) {
+		this.animationLoop.advanceToTime(time, function () {
+			info.deltaTime = self.framerate;
+			self.tick(self.framerate, info);
 		});
-	});
+	}
+	// link framerate to draw rate
+	else {
+		var dt = 0;
 
-	this.frameDelta = (time - this.animationLoop.lastTime) / this.animationLoop.framerate;
-	this._draw();
+		if (this.animationLoop.lastTime == 0) {
+			dt = time - 1.0 / 60.0;
+		}
+		else {
+			dt = time - this.animationLoop.lastTime;
+		}
+
+		info.deltaTime = dt;
+		self.tick(dt, info);
+
+		this.animationLoop.lastTime = time;
+	}
+
+	if (this.animationLoop.framerate) {
+		info.frameDelta = time - this.animationLoop.lastTime;
+	}
+	else {
+		info.frameDelta = 0;
+	}
+
+	this._draw(info);
 
 	this.animationFrame = window.requestAnimationFrame(function () {
 		self._tick();
@@ -143,7 +166,7 @@ proto.clear = function () {
 /**
  * Draw frame
  */
-proto._draw = function () {
+proto._draw = function (info) {
 	if (this._flags & AUTO_CLEAR) {
 		this.clear();
 	}
@@ -151,10 +174,7 @@ proto._draw = function () {
 	this.ctx.save();
 	this._updateTransform();
 
-	this.draw.call(this, this.ctx, {
-		viewport: this.viewport,
-		frameDelta: this.frameDelta
-	});
+	this.draw.call(this, this.ctx, info);
 
 	this.ctx.restore();
 };
