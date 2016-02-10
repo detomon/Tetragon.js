@@ -29,13 +29,10 @@ proto.addComponent = function (component) {
 		return null;
 	}
 
-	var instance;
+	var instance = {};
 
-	if (component.createInstance) {
-		instance = component.createInstance.apply(this, args);
-	}
-	else {
-		instance = {};
+	if (component.construct) {
+		component.construct.apply(instance, args);
 	}
 
 	instance.entity = this;
@@ -60,8 +57,6 @@ proto.removeComponent = function (component) {
 
 	delete component.data[this.id - 1];
 	this.system.entities[this.id - 1] &= ~(1 << component.id);
-
-	return instance;
 };
 
 proto.componentData = function (name) {

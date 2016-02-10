@@ -9,7 +9,7 @@ var EntityComponent = T.EntityComponent = function (id, options) {
 	this.id = id;
 	this.name = options.name;
 	this.options = options;
-	this.createInstance = options.createInstance;
+	this.construct = options.construct;
 	this.data = [];
 };
 
