@@ -122,7 +122,7 @@ proto._tick = function () {
 		var dt = 0;
 
 		if (this.animationLoop.lastTime == 0) {
-			dt = time - 1.0 / 60.0;
+			dt = 1.0 / 60.0;
 		}
 		else {
 			dt = time - this.animationLoop.lastTime;
