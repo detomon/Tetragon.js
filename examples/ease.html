@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Draw with steady tick rate</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<link href="css/main.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="canvas-wrapper">
+	<canvas width="800" height="600" id="canvas"></canvas>
+	<button id="prev">Prev</button>
+	<button id="next">Next</button>
+</div>
+
+<script src="../tetragon.js"></script>
+<script>
+
+var r = 0;
+var n = 0;
+var speed;
+var canvas = document.getElementById('canvas');
+var ease = [
+	'easeInQuad',
+	'easeOutQuad',
+	'easeInOutQuad',
+	'easeInCubic',
+	'easeOutCubic',
+	'easeInOutCubic',
+	'easeInQuart',
+	'easeOutQuart',
+	'easeInOutQuart',
+	'easeInQuint',
+	'easeOutQuint',
+	'easeInOutQuint',
+	'easeInSine',
+	'easeOutSine',
+	'easeInOutSine',
+	'easeInExpo',
+	'easeOutExpo',
+	'easeInOutExpo',
+	'easeInCirc',
+	'easeOutCirc',
+	'easeInOutCirc',
+	'easeInElastic',
+	'easeOutElastic',
+	'easeInOutElastic',
+	'easeInBack',
+	'easeOutBack',
+	'easeInOutBack',
+	'easeInBounce',
+	'easeOutBounce',
+	'easeInOutBounce',
+];
+
+var controller = new Tetragon.Canvas({
+	element: canvas,
+	framerate: 0,
+	tick: function (dt, info) {
+		r += dt;
+		r = r % 1;
+	},
+	draw: function (ctx, info) {
+		var d = Tetragon.Tween[ease[n]](r);
+
+		ctx.fillStyle = '#f0f0f0';
+		ctx.fillRect(-200, -10, 400, 20);
+
+		ctx.fillStyle = '#000000';
+		ctx.fillRect(d * 400 - 200 - 10, -10, 20, 20);
+		ctx.fillText(ease[n], 0, -50);
+	}
+});
+
+document.getElementById('prev').addEventListener('click', function () {
+	if (n > 0) {
+		n --;
+	}
+
+	r = 0;
+});
+
+document.getElementById('next').addEventListener('click', function () {
+	if (n < ease.length - 1) {
+		n ++;
+	}
+
+	r = 0;
+});
+
+controller.startAnimating();
+
+</script>
+
+</body>
+</html>
