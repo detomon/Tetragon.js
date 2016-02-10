@@ -33,7 +33,7 @@ proto.entity = function (id) {
 		return null;
 	}
 
-	return new Entity(id, this);
+	return new T.Entity(id, this);
 };
 
 proto.createEntity = function () {
