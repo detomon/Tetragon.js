@@ -55,6 +55,10 @@ proto.removeComponent = function (component) {
 		return null;
 	}
 
+	if (component.destruct) {
+		component.destruct.apply(component.data[this.id - 1]);
+	}
+
 	delete component.data[this.id - 1];
 	this.system.entities[this.id - 1] &= ~(1 << component.id);
 };
@@ -87,6 +91,11 @@ proto.delete = function () {
 
 		if (mask & 1) {
 			var component = system.components[n];
+
+			if (component.destruct) {
+				component.destruct.apply(component.data[this.id - 1]);
+			}
+
 			delete component.data[this.id - 1];
 		}
 

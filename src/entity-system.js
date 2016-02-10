@@ -20,6 +20,11 @@ proto.component = function (name) {
 };
 
 proto.createComponent = function (options) {
+	options = T.extend({
+		construct: null,
+		destruct: null,
+	}, options);
+
 	var id = this.components.length;
 	var component = new T.EntityComponent(id, options);
 	this.components.push(component);

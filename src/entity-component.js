@@ -10,6 +10,7 @@ var EntityComponent = T.EntityComponent = function (id, options) {
 	this.name = options.name;
 	this.options = options;
 	this.construct = options.construct;
+	this.destruct = options.destruct;
 	this.data = [];
 };
 
