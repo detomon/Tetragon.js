@@ -1,6 +1,5 @@
 /**
  * @depend tetragon.js
- * @depend vector.js
  */
 
 (function (T) {

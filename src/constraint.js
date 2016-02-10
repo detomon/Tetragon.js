@@ -1,6 +1,5 @@
 /**
  * @depend tetragon.js
- * @depend point-mass.js
  */
 
 (function (T) {
