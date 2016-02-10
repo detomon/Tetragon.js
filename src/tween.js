@@ -15,7 +15,6 @@ var Tween = T.Tween = function (options) {
 	}, options);
 
 	this.time       = 0;
-	this.curValue   = 0;
 	this.state      = 0;
 	this.startValue = options.startValue;
 	this.endValue   = options.endValue;
@@ -27,158 +26,158 @@ var Tween = T.Tween = function (options) {
 Tween.STATE_RUNNING = 1;
 Tween.STATE_ENDED   = 2;
 
-Tween.easeInQuad = function (x, t, b, c, d) {
-	return c*(t/=d)*t + b;
+Tween.easeInQuad = function (t) {
+	return t*t;
 };
 
-Tween.easeOutQuad = function (x, t, b, c, d) {
-	return -c *(t/=d)*(t-2) + b;
+Tween.easeOutQuad = function (t) {
+	return -t*(t-2);
 };
 
-Tween.easeInOutQuad = function (x, t, b, c, d) {
-	if ((t/=d/2) < 1) return c/2*t*t + b;
-	return -c/2 * ((--t)*(t-2) - 1) + b;
+Tween.easeInOutQuad = function (t) {
+	if ((t/=0.5) < 1) return 0.5*t*t;
+	return -0.5 * ((--t)*(t-2) - 1);
 };
 
-Tween.easeInCubic = function (x, t, b, c, d) {
-	return c*(t/=d)*t*t + b;
+Tween.easeInCubic = function (t) {
+	return t*t*t;
 };
 
-Tween.easeOutCubic = function (x, t, b, c, d) {
-	return c*((t=t/d-1)*t*t + 1) + b;
+Tween.easeOutCubic = function (t) {
+	return ((t=t-1)*t*t + 1);
 };
 
-Tween.easeInOutCubic = function (x, t, b, c, d) {
-	if ((t/=d/2) < 1) return c/2*t*t*t + b;
-	return c/2*((t-=2)*t*t + 2) + b;
+Tween.easeInOutCubic = function (t) {
+	if ((t/=0.5) < 1) return 0.5*t*t*t;
+	return 0.5*((t-=2)*t*t + 2);
 };
 
-Tween.easeInQuart = function (x, t, b, c, d) {
-	return c*(t/=d)*t*t*t + b;
+Tween.easeInQuart = function (t) {
+	return 1*t*t*t*t;
 };
 
-Tween.easeOutQuart = function (x, t, b, c, d) {
-	return -c * ((t=t/d-1)*t*t*t - 1) + b;
+Tween.easeOutQuart = function (t) {
+	return -((t=t-1)*t*t*t - 1);
 };
 
-Tween.easeInOutQuart = function (x, t, b, c, d) {
-	if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
-	return -c/2 * ((t-=2)*t*t*t - 2) + b;
+Tween.easeInOutQuart = function (t) {
+	if ((t/=0.5) < 1) return 0.5*t*t*t*t;
+	return -0.5 * ((t-=2)*t*t*t - 2);
 };
 
-Tween.easeInQuint = function (x, t, b, c, d) {
-	return c*(t/=d)*t*t*t*t + b;
+Tween.easeInQuint = function (t) {
+	return t*t*t*t*t;
 };
 
-Tween.easeOutQuint = function (x, t, b, c, d) {
-	return c*((t=t/d-1)*t*t*t*t + 1) + b;
+Tween.easeOutQuint = function (t) {
+	return ((t=t-1)*t*t*t*t + 1);
 };
 
-Tween.easeInOutQuint = function (x, t, b, c, d) {
-	if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
-	return c/2*((t-=2)*t*t*t*t + 2) + b;
+Tween.easeInOutQuint = function (t) {
+	if ((t/=0.5) < 1) return 0.5*t*t*t*t*t;
+	return 0.5*((t-=2)*t*t*t*t + 2);
 };
 
-Tween.easeInSine = function (x, t, b, c, d) {
-	return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+Tween.easeInSine = function (t) {
+	return -1 * Math.cos(t * (Math.PI/2)) + 1;
 };
 
-Tween.easeOutSine = function (x, t, b, c, d) {
-	return c * Math.sin(t/d * (Math.PI/2)) + b;
+Tween.easeOutSine = function (t) {
+	return Math.sin(t * (Math.PI/2));
 };
 
-Tween.easeInOutSine = function (x, t, b, c, d) {
-	return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+Tween.easeInOutSine = function (t) {
+	return -0.5 * (Math.cos(Math.PI*t) - 1);
 };
 
-Tween.easeInExpo = function (x, t, b, c, d) {
-	return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
+Tween.easeInExpo = function (t) {
+	return (t==0) ? b : 1 * Math.pow(2, 10 * (t - 1));
 };
 
-Tween.easeOutExpo = function (x, t, b, c, d) {
-	return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+Tween.easeOutExpo = function (t) {
+	return (t==1) ? b+1 : 1 * (-Math.pow(2, -10 * t) + 1);
 };
 
-Tween.easeInOutExpo = function (x, t, b, c, d) {
-	if (t==0) return b;
-	if (t==d) return b+c;
-	if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
-	return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
+Tween.easeInOutExpo = function (t) {
+	if (t==0) return 0;
+	if (t==1) return 1;
+	if ((t/=0.5) < 1) return 0.5 * Math.pow(2, 10 * (t - 1));
+	return 0.5 * (-Math.pow(2, -10 * --t) + 2);
 };
 
-Tween.easeInCirc = function (x, t, b, c, d) {
-	return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
+Tween.easeInCirc = function (t) {
+	return -(Math.sqrt(1 - t*t) - 1);
 };
 
-Tween.easeOutCirc = function (x, t, b, c, d) {
-	return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
+Tween.easeOutCirc = function (t) {
+	return Math.sqrt(1 - (t=t-1)*t);
 };
 
-Tween.easeInOutCirc = function (x, t, b, c, d) {
-	if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
-	return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b;
+Tween.easeInOutCirc = function (t) {
+	if ((t/=0.5) < 1) return -0.5 * (Math.sqrt(1 - t*t) - 1);
+	return 0.5 * (Math.sqrt(1 - (t-=2)*t) + 1);
 };
 
-Tween.easeInElastic = function (x, t, b, c, d) {
-	var s=1.70158;var p=0;var a=c;
-	if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-	if (a < Math.abs(c)) { a=c; var s=p/4; }
-	else var s = p/(2*Math.PI) * Math.asin (c/a);
-	return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+Tween.easeInElastic = function (t) {
+	var s=1.70158;var p=0;var a=1;
+	if (t==0) return b;  if (t==1) return b+1;  if (!p) p=1*0.3;
+	if (a < Math.abs(1)) { a=1; var s=p/4; }
+	else var s = p/(2*Math.PI) * Math.asin (1/a);
+	return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p ));
 };
 
-Tween.easeOutElastic = function (x, t, b, c, d) {
-	var s=1.70158;var p=0;var a=c;
-	if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-	if (a < Math.abs(c)) { a=c; var s=p/4; }
-	else var s = p/(2*Math.PI) * Math.asin (c/a);
-	return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+Tween.easeOutElastic = function (t) {
+	var s=1.70158;var p=0;var a=1;
+	if (t==0) return b;  if (t==1) return b+1;  if (!p) p=1*.3;
+	if (a < Math.abs(1)) { a=1; var s=p/4; }
+	else var s = p/(2*Math.PI) * Math.asin (1/a);
+	return a*Math.pow(2,-10*t) * Math.sin( (t*1-s)*(2*Math.PI)/p ) + 1;
 };
 
-Tween.easeInOutElastic = function (x, t, b, c, d) {
-	var s=1.70158;var p=0;var a=c;
-	if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
-	if (a < Math.abs(c)) { a=c; var s=p/4; }
-	else var s = p/(2*Math.PI) * Math.asin (c/a);
-	if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-	return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
+Tween.easeInOutElastic = function (t) {
+	var s=1.70158;var p=0;var a=1;
+	if (t==0) return b;  if ((t/=0.5)==2) return b+1;  if (!p) p=1*(.3*1.5);
+	if (a < Math.abs(1)) { a=1; var s=p/4; }
+	else var s = p/(2*Math.PI) * Math.asin (1/a);
+	if (t < 1) return -0.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p ));
+	return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p )*0.5 + 1;
 };
 
-Tween.easeInBack = function (x, t, b, c, d, s) {
+Tween.easeInBack = function (t, s) {
 	if (s == undefined) s = 1.70158;
-	return c*(t/=d)*t*((s+1)*t - s) + b;
+	return t*t*((s+1)*t - s);
 };
 
-Tween.easeOutBack = function (x, t, b, c, d, s) {
+Tween.easeOutBack = function (t, s) {
 	if (s == undefined) s = 1.70158;
-	return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+	return ((t=t-1)*t*((s+1)*t + s) + 1);
 };
 
-Tween.easeInOutBack = function (x, t, b, c, d, s) {
+Tween.easeInOutBack = function (t, s) {
 	if (s == undefined) s = 1.70158;
-	if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
-	return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+	if ((t/=0.5) < 1) return 0.5*(t*t*(((s*=(1.525))+1)*t - s));
+	return 0.5*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2);
 };
 
-Tween.easeInBounce = function (x, t, b, c, d) {
-	return c - jQuery.easing.easeOutBounce (x, d-t, 0, c, d) + b;
+Tween.easeInBounce = function (t) {
+	return 1 - Tween.easeOutBounce (1-t, 0);
 };
 
-Tween.easeOutBounce = function (x, t, b, c, d) {
-	if ((t/=d) < (1/2.75)) {
-		return c*(7.5625*t*t) + b;
+Tween.easeOutBounce = function (t) {
+	if (t < (1/2.75)) {
+		return (7.5625*t*t);
 	} else if (t < (2/2.75)) {
-		return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+		return (7.5625*(t-=(1.5/2.75))*t + 0.75);
 	} else if (t < (2.5/2.75)) {
-		return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+		return (7.5625*(t-=(2.25/2.75))*t + 0.9375);
 	} else {
-		return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+		return (7.5625*(t-=(2.625/2.75))*t + 0.984375);
 	}
 };
 
-Tween.easeInOutBounce = function (x, t, b, c, d) {
-	if (t < d/2) return jQuery.easing.easeInBounce (x, t*2, 0, c, d) * .5 + b;
-	return jQuery.easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
+Tween.easeInOutBounce = function (t) {
+	if (t < 0.5) return Tween.easeInBounce (t*2, 0) * 0.5;
+	return Tween.easeOutBounce (t*2-1, 0) * 0.5 + 1*0.5;
 };
 
 var proto = Tween.prototype;
@@ -186,11 +185,13 @@ var proto = Tween.prototype;
 Object.defineProperty(proto, 'value', {
 	enumerable: true,
 	get: function () {
-		var b = this.startValue;
-		var c = this.endValue - this.startValue;
 		var d = this.time / this.duration;
 
-		return this.options.easeFunc ? this.options.easeFunc(null, d, b, c, 1) : this.curValue;
+		if (this.options.easeFunc) {
+			d = this.options.easeFunc(d);
+		}
+
+		return this.startValue + d * (this.endValue - this.startValue);
 	},
 });
 
@@ -199,7 +200,6 @@ proto.tick = function (dt) {
 
 	this.time = Math.min(this.time + dt, this.duration);
 	delta = this.time / this.duration;
-	this.curValue = this.startValue + delta * (this.endValue - this.startValue);
 
 	if (this.time >= this.duration) {
 		if (this.done) {
