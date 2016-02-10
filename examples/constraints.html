@@ -19,41 +19,31 @@ var system = new Tetragon.EntitySystem();
 
 system.createComponent({
 	name: 'draw',
-	draw: function (ctx) {
-		var pos = this.entity.componentData('position');
+	draw: function (ctx, info) {
+		var pos = this.entity.componentData('pointMass');
+		var diff = pos.point.p.sub(pos.point.pp);
 
-		ctx.fillRect(pos.pos.x, pos.pos.y, 20, 20);
-	}
-});
+		pos = pos.point.p.add(diff.mult(info.frameDelta));
 
-system.createComponent({
-	name: 'position',
-	createInstance: function (position) {
-		return {
-			pos: position.copy()
-		};
+		ctx.fillRect(pos.x, pos.y, 20, 20);
 	}
 });
 
 system.createComponent({
 	name: 'pointMass',
-	createInstance: function (point, mass) {
-		return {
-			point: new Tetragon.PointMass(point, mass)
-		};
+	construct: function (point, mass) {
+		this.point = new Tetragon.PointMass(point, mass);
 	},
 	tick: function (dt) {
 		this.point.inertia(dt);
-		this.entity.componentData('position').pos = this.point.p.copy();
+		//this.entity.componentData('position').pos = this.point.p.copy();
 	}
 });
 
 system.createComponent({
 	name: 'constraint',
-	createInstance: function (point1, point2, restDist, stiffness) {
-		return {
-			constraint: new Tetragon.Constraint(point1, point2, restDist, stiffness)
-		};
+	construct: function (point1, point2, restDist, stiffness) {
+		this.constraint = new Tetragon.Constraint(point1, point2, restDist, stiffness);
 	},
 	tick: function (dt) {
 		this.constraint.solve();
@@ -72,10 +62,7 @@ var point1 = system.createEntity();
 var point2 = system.createEntity();
 var constraint = system.createEntity();
 
-point1.addComponent('position', new Tetragon.Vector(-200, -200));
 var p1 = point1.addComponent('pointMass', new Tetragon.Vector(-200, -200));
-
-point2.addComponent('position', new Tetragon.Vector(0, -200));
 var p2 = point2.addComponent('pointMass', new Tetragon.Vector(0, -200));
 
 point1.addComponent('draw');
@@ -96,7 +83,7 @@ var controller = new Tetragon.Canvas({
 		system.iterate('constraint', 'tick', dt);
 	},
 	draw: function (ctx, info) {
-		system.iterate('draw', 'draw', ctx);
+		system.iterate('draw', 'draw', ctx, info);
 	}
 });
 
