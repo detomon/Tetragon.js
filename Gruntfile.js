@@ -48,6 +48,7 @@ module.exports = function(grunt) {
 						'src/tetragon.js',
 						'src/point-mass.js',
 						'src/constraint.js',
+						'src/quadtree.js',
 					],
 				},
 				options: {

@@ -23,6 +23,16 @@ Object.defineProperty(proto, 'maxPos', {
 	}
 });
 
+Object.defineProperty(proto, 'center', {
+	enumerable: true,
+	get: function () {
+		return this.pos.add(this.size.mult(0.5));
+	},
+	set: function (center) {
+		this.pos = center.sub(this.size.mult(0.5));
+	}
+});
+
 proto.containsPoint = function (point) {
 	var pos = this.pos;
 	var maxPos = this.maxPos;
@@ -64,6 +74,10 @@ proto.intersectsWithRect = function (rect) {
 	}
 
 	return false;
+};
+
+proto.copy = function () {
+	return new Rect(this.pos.copy(), this.size.copy());
 };
 
 }(Tetragon));

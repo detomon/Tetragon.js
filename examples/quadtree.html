@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>QuadTree</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<link href="css/main.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="canvas-wrapper">
+	<canvas width="800" height="600" id="canvas"></canvas>
+</div>
+
+<script src="../tetragon.js"></script>
+<script>
+
+function drawQuad(ctx, quad) {
+	var rect = quad.rect;
+
+	ctx.strokeStyle = '#000000';
+	ctx.strokeRect(rect.pos.x + 0.5, rect.pos.y + 0.5, rect.size.x - 1.0, rect.size.y - 1.0);
+
+	ctx.strokeStyle = '#ff0000';
+
+	for (var i = 0; i < quad.items.length; i ++) {
+		rect = quad.items[i].rect;
+		ctx.strokeRect(rect.pos.x + 0.5, rect.pos.y + 0.5, rect.size.x - 1.0, rect.size.y - 1.0);
+	}
+
+	for (var i = 0; i < quad.quads.length; i ++) {
+		if (quad.quads[i]) {
+			drawQuad(ctx, quad.quads[i]);
+		}
+	}
+}
+
+var quadtree = new Tetragon.QuadTree(new Tetragon.Rect(new Tetragon.Vector(-400, -300), new Tetragon.Vector(800, 600)));
+var canvas = document.getElementById('canvas');
+
+var item1 = quadtree.addItem('1', new Tetragon.Rect(new Tetragon.Vector(20, 20), new Tetragon.Vector(100, 100)));
+var item2 = quadtree.addItem('2', new Tetragon.Rect(new Tetragon.Vector(-150, -150), new Tetragon.Vector(100, 100)));
+var item3 = quadtree.addItem('3', new Tetragon.Rect(new Tetragon.Vector(40, 20), new Tetragon.Vector(100, 100)));
+var item4 = quadtree.addItem('4', new Tetragon.Rect(new Tetragon.Vector(50, 50), new Tetragon.Vector(50, 50)));
+var item5 = quadtree.addItem('5', new Tetragon.Rect(new Tetragon.Vector(-200, 200), new Tetragon.Vector(50, 50)));
+
+// item1.remove();
+// item2.remove();
+// item3.remove();
+// item4.remove();
+// item5.remove();
+
+quadtree.forEachItemInRect(function (item) {
+	console.log(item);
+}, new Tetragon.Rect(new Tetragon.Vector(-400, -300), new Tetragon.Vector(400, 600)));
+
+var controller = new Tetragon.Canvas({
+	element: canvas,
+	framerate: 0,
+	tick: function (dt, info) {
+	},
+	draw: function (ctx, info) {
+		drawQuad(ctx, quadtree);
+	}
+});
+
+controller.startAnimating();
+
+</script>
+
+</body>
+</html>
