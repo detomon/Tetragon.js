@@ -55,22 +55,23 @@ proto.rotate = function (a) {
 	return this;
 };
 
-proto.multVec = function (vec) {
-	return new T.Vector(
-		this[0] * vec.x + this[2] * vec.y + this[4],
-		this[1] * vec.x + this[3] * vec.y + this[5]
-	);
-};
-
-proto.multiply = function (mat) {
-	return new Matrix([
-		this[0] * mat[0] + this[2] * mat[1],
-		this[1] * mat[0] + this[3] * mat[1],
-		this[0] * mat[2] + this[2] * mat[3],
-		this[1] * mat[2] + this[3] * mat[3],
-		this[0] * mat[4] + this[2] * mat[5] + this[4],
-		this[1] * mat[4] + this[3] * mat[5] + this[5]
-	]);
+proto.mult = function (val) {
+	if (T.Vector.prototype.isPrototypeOf(val)) {
+		return new T.Vector(
+			this[0] * val.x + this[2] * val.y + this[4],
+			this[1] * val.x + this[3] * val.y + this[5]
+		);
+	}
+	if (T.Matrix.prototype.isPrototypeOf(val)) {
+		return new Matrix([
+			this[0] * val[0] + this[2] * val[1],
+			this[1] * val[0] + this[3] * val[1],
+			this[0] * val[2] + this[2] * val[3],
+			this[1] * val[2] + this[3] * val[3],
+			this[0] * val[4] + this[2] * val[5] + this[4],
+			this[1] * val[4] + this[3] * val[5] + this[5]
+		]);
+	}
 };
 
 proto.invert = function () {

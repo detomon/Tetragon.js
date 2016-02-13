@@ -66,7 +66,7 @@ Object.defineProperty(proto, 'transform', {
 			transform = new T.Matrix();
 
 			if (this.options.origin) {
-				transform.translate(this.options.origin.multVec(this.viewport.size));
+				transform.translate(this.options.origin.mult(this.viewport.size));
 			}
 
 			if (this.options.scale) {
@@ -254,14 +254,14 @@ proto.offsetFromEvent = function (e) {
  * Get world position from relative pixel offset
  */
 proto.worldPositionFromOffset = function (offset) {
-	return this.inverseTransform.multVec(offset);
+	return this.inverseTransform.mult(offset);
 };
 
 /**
  * Get relative pixel offset from world position
  */
 proto.offsetFromWorldPosition = function (offset) {
-	return this.transform.multVec(offset);
+	return this.transform.mult(offset);
 };
 /**
  * Window resize handler
