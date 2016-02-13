@@ -109,7 +109,7 @@ proto._updateTransform = function (transform) {
 proto._tick = function () {
 	var self = this;
 	var time = (new Date()).getTime() / 1000;
-	var info = {viewport: self.viewport};
+	var info = {viewport: self.viewport, ctx: self.ctx};
 
 	if (this.framerate) {
 		this.animationLoop.advanceToTime(time, function () {
