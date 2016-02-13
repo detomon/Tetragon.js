@@ -34,17 +34,6 @@ T.extend = function (obj, obj2) {
 	return obj;
 };
 
-T.reduce = function (items, initValue, reduce) {
-	var i;
-	var value = initValue;
-
-	for (i = 0; i < items.length; i ++) {
-		value = reduce(value, items[i]);
-	}
-
-	return value;
-};
-
 T.loadImages = function (images, options) {
 	var i;
 	var keys;
@@ -191,12 +180,96 @@ var Vector = T.Vector = function (x, y) {
 
 var proto = Vector.prototype;
 
+Object.defineProperty(proto, 'length', {
+	get: function () {
+		return Math.sqrt(this.x * this.x + this.y * this.y);
+	}
+});
+
+Object.defineProperty(proto, 'lengthSquared', {
+	get: function () {
+		return this.x * this.x + this.y * this.y;
+	}
+});
+
+Object.defineProperty(proto, 'negated', {
+	get: function () {
+		return new Vector(-this.x, -this.y);
+	}
+});
+
+Object.defineProperty(proto, 'rotation', {
+	get: function () {
+		var a = Math.atan2(this.y, this.x);
+		a = a < 0 ? a + 2.0 * Math.PI : a;
+		return a / Math.PI * 180.0;
+	}
+});
+
+Object.defineProperty(proto, 'integ', {
+	get: function () {
+		return new Vector(Math.floor(this.x), Math.floor(this.y));
+	}
+});
+
 proto.add = function (vec) {
 	return new Vector(this.x + vec.x, this.y + vec.y);
 };
 
 proto.sub = function (vec) {
 	return new Vector(this.x - vec.x, this.y - vec.y);
+};
+
+proto.mult = function (val) {
+	if (val === Object(val)) {
+		return new Vector(this.x * val.x, this.y * val.y);
+	}
+	else {
+		return new Vector(this.x * val, this.y * val);
+	}
+};
+
+proto.div = function (val) {
+	if (val === Object(val)) {
+		return new Vector(this.x / val.x, this.y / val.y);
+	}
+	else {
+		return new Vector(this.x / val, this.y / val);
+	}
+};
+
+proto.normalize = function (mag) {
+	if (mag === undefined) {
+		mag = 1.0;
+	}
+
+	var len = this.length;
+
+	if (len) {
+		len = mag / len;
+	}
+
+	return new Vector(this.x * len, this.y * len);
+};
+
+proto.dot = function (vec) {
+	return this.x * vec.x + this.y * vec.y;
+};
+
+proto.rotate = function (a) {
+	var r = a / 180.0 * Math.PI;
+	var c = Math.cos(r);
+	var s = Math.sin(r);
+
+	return new Vector(
+		this.x * c - this.y * s,
+		this.x * s + this.y * c
+	);
+};
+
+proto.reflect = function (wall) {
+	wall = wall.normalize();
+	return this.sub(wall.mult(2.0 * wall.dot(this)));
 };
 
 proto.inc = function (vec) {
@@ -210,95 +283,11 @@ proto.dec = function (vec) {
 };
 
 proto.shl = function (n) {
-	return new Vector(
-		this.x << n,
-		this.y << n
-	);
+	return new Vector(this.x << n, this.y << n);
 };
 
 proto.shr = function (n) {
-	return new Vector(
-		this.x >> n,
-		this.y >> n
-	);
-};
-
-proto.integ = function (n) {
-	return new Vector(
-		this.x | 0,
-		this.y | 0
-	);
-};
-
-proto.mult = function (fac) {
-	return new Vector(this.x * fac, this.y * fac);
-};
-
-proto.div = function (fac) {
-	return new Vector(this.x / fac, this.y / fac);
-};
-
-proto.length = function () {
-	return Math.sqrt(this.x * this.x + this.y * this.y);
-};
-
-proto.lengthSquared = function () {
-	return this.x * this.x + this.y * this.y;
-};
-
-proto.normalize = function (length) {
-	if (length === undefined) {
-		length = 1.0;
-	}
-
-	var x   = this.x;
-	var y   = this.y;
-	var len = this.length();
-
-	if (len) {
-		len = length / len;
-	}
-
-	x *= len;
-	y *= len;
-
-	return new Vector(x, y);
-};
-
-proto.multVec = function (vec) {
-	return new Vector(this.x * vec.x, this.y * vec.y);
-};
-
-proto.divVec = function (vec) {
-	return new Vector(this.x / vec.x, this.y / vec.y);
-};
-
-proto.dot = function (vec) {
-	return this.x * vec.x + this.y * vec.y;
-};
-
-proto.reflect = function (wall) {
-	wall = wall.normalize();
-	return this.sub(wall.mult(2.0 * wall.dot(this)));
-};
-
-proto.negate = function (wall) {
-	return new Vector(-this.x, -this.y);
-};
-
-proto.copy = function () {
-	return new Vector(this.x, this.y);
-};
-
-proto.rotate = function (a) {
-	var r = a / 180.0 * Math.PI;
-	var c = Math.cos(r);
-	var s = Math.sin(r);
-
-	var x = this.x * c - this.y * s;
-	var y = this.x * s + this.y * c;
-
-	return new Vector(x, y);
+	return new Vector(this.x >> n, this.y >> n);
 };
 
 proto.copy = function (a) {
@@ -364,22 +353,23 @@ proto.rotate = function (a) {
 	return this;
 };
 
-proto.multVec = function (vec) {
-	return new T.Vector(
-		this[0] * vec.x + this[2] * vec.y + this[4],
-		this[1] * vec.x + this[3] * vec.y + this[5]
-	);
-};
-
-proto.multiply = function (mat) {
-	return new Matrix([
-		this[0] * mat[0] + this[2] * mat[1],
-		this[1] * mat[0] + this[3] * mat[1],
-		this[0] * mat[2] + this[2] * mat[3],
-		this[1] * mat[2] + this[3] * mat[3],
-		this[0] * mat[4] + this[2] * mat[5] + this[4],
-		this[1] * mat[4] + this[3] * mat[5] + this[5]
-	]);
+proto.mult = function (val) {
+	if (T.Vector.prototype.isPrototypeOf(val)) {
+		return new T.Vector(
+			this[0] * val.x + this[2] * val.y + this[4],
+			this[1] * val.x + this[3] * val.y + this[5]
+		);
+	}
+	if (T.Matrix.prototype.isPrototypeOf(val)) {
+		return new Matrix([
+			this[0] * val[0] + this[2] * val[1],
+			this[1] * val[0] + this[3] * val[1],
+			this[0] * val[2] + this[2] * val[3],
+			this[1] * val[2] + this[3] * val[3],
+			this[0] * val[4] + this[2] * val[5] + this[4],
+			this[1] * val[4] + this[3] * val[5] + this[5]
+		]);
+	}
 };
 
 proto.invert = function () {
@@ -624,7 +614,7 @@ Object.defineProperty(proto, 'transform', {
 			transform = new T.Matrix();
 
 			if (this.options.origin) {
-				transform.translate(this.options.origin.multVec(this.viewport.size));
+				transform.translate(this.options.origin.mult(this.viewport.size));
 			}
 
 			if (this.options.scale) {
@@ -667,7 +657,7 @@ proto._updateTransform = function (transform) {
 proto._tick = function () {
 	var self = this;
 	var time = (new Date()).getTime() / 1000;
-	var info = {viewport: self.viewport};
+	var info = {viewport: self.viewport, ctx: self.ctx};
 
 	if (this.framerate) {
 		this.animationLoop.advanceToTime(time, function () {
@@ -812,14 +802,14 @@ proto.offsetFromEvent = function (e) {
  * Get world position from relative pixel offset
  */
 proto.worldPositionFromOffset = function (offset) {
-	return this.inverseTransform.multVec(offset);
+	return this.inverseTransform.mult(offset);
 };
 
 /**
  * Get relative pixel offset from world position
  */
 proto.offsetFromWorldPosition = function (offset) {
-	return this.transform.multVec(offset);
+	return this.transform.mult(offset);
 };
 /**
  * Window resize handler

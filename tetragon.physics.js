@@ -124,7 +124,7 @@ proto.pin = function() {
 var Constraint = T.Constraint = function (p1, p2, restDist, stiffness) {
 	// set current distance as resting distance if not defined
 	if (restDist === undefined) {
- 		restDist = p2.p.sub(p1.p).length();
+		restDist = p2.p.sub(p1.p).length;
 	}
 
 	// set default stiffness to maximum if not defined
@@ -158,7 +158,7 @@ proto.solve = function() {
 
 	// scalar distance between points
 	// l = |d|
-	var l = d.length();
+	var l = d.length;
 
 	var r = 0.0;
 
