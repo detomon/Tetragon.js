@@ -25,17 +25,6 @@ T.extend = function (obj, obj2) {
 	return obj;
 };
 
-T.reduce = function (items, initValue, reduce) {
-	var i;
-	var value = initValue;
-
-	for (i = 0; i < items.length; i ++) {
-		value = reduce(value, items[i]);
-	}
-
-	return value;
-};
-
 T.loadImages = function (images, options) {
 	var i;
 	var keys;
