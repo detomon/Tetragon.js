@@ -20,12 +20,21 @@ var system = new Tetragon.EntitySystem();
 system.createComponent({
 	name: 'draw',
 	draw: function (ctx, info) {
-		var pos = this.entity.componentData('pointMass');
-		var diff = pos.point.p.sub(pos.point.pp);
+		var data;
 
-		pos = pos.point.p.add(diff.mult(info.frameDelta));
+		if (data = this.entity.componentData('pointMass')) {
+			var pos = data;
+			var diff = pos.point.p.sub(pos.point.pp);
 
-		ctx.fillRect(pos.x, pos.y, 20, 20);
+			pos = pos.point.p.add(diff.mult(info.frameDelta));
+			ctx.fillRect(pos.x - 10, pos.y - 10, 20, 20);
+		}
+		else if (data = this.entity.componentData('constraint')) {
+			ctx.beginPath();
+			ctx.moveTo(data.constraint.p1.p.x, data.constraint.p1.p.y);
+			ctx.lineTo(data.constraint.p2.p.x, data.constraint.p2.p.y);
+			ctx.stroke();
+		}
 	}
 });
 
@@ -36,7 +45,6 @@ system.createComponent({
 	},
 	tick: function (dt) {
 		this.point.inertia(dt);
-		//this.entity.componentData('position').pos = this.point.p.copy();
 	}
 });
 
@@ -58,31 +66,69 @@ system.createComponent({
 	}
 });
 
+system.createComponent({
+	name: 'bounds',
+	tick: function (dt, info) {
+		var viewport = info.viewport.size;
+		var point = this.entity.componentData('pointMass').point;
+
+		if (point.p.x > viewport.x * 0.5) {
+			var d = point.p.x - viewport.x * 0.5;
+			var e = point.p.x - point.pp.x;
+			point.p.x -= d;
+			point.pp.x = point.p.x - e;
+		}
+
+		if (point.p.y > 0) {
+			var d = point.p.y - 0;
+			var e = point.p.y - point.pp.y;
+			point.p.y -= d;
+			point.pp.y = point.p.y + e;
+		}
+	}
+});
+
 var point1 = system.createEntity();
 var point2 = system.createEntity();
-var constraint = system.createEntity();
+var point3 = system.createEntity();
 
-var p1 = point1.addComponent('pointMass', new Tetragon.Vector(-200, -200));
-var p2 = point2.addComponent('pointMass', new Tetragon.Vector(0, -200));
+var constraint1 = system.createEntity();
+var constraint2 = system.createEntity();
 
 point1.addComponent('draw');
 point2.addComponent('draw');
+point3.addComponent('draw');
+
+constraint1.addComponent('draw');
+constraint2.addComponent('draw');
 
 point1.addComponent('gravity');
+point2.addComponent('gravity');
+point3.addComponent('gravity');
 
-constraint.addComponent('constraint', p1.point, p2.point, 100, 0.1);
+point1.addComponent('bounds');
 
+var p1 = point1.addComponent('pointMass', new Tetragon.Vector(-200, -200));
+var p2 = point2.addComponent('pointMass', new Tetragon.Vector(0, -200));
+var p3 = point3.addComponent('pointMass', new Tetragon.Vector(0, 0));
+
+constraint1.addComponent('constraint', p1.point, p2.point, 100, 0.1);
+constraint2.addComponent('constraint', p2.point, p3.point, 150, 0.01);
 
 var canvas = document.getElementById('canvas');
 
 var controller = new Tetragon.Canvas({
 	element: canvas,
 	tick: function (dt, info) {
-		system.iterate('gravity', 'tick', dt);
-		system.iterate('pointMass', 'tick', dt);
-		system.iterate('constraint', 'tick', dt);
+		system.iterate('gravity', 'tick', dt, info);
+		system.iterate('pointMass', 'tick', dt, info);
+		system.iterate('constraint', 'tick', dt, info);
+		system.iterate('bounds', 'tick', dt, info);
 	},
 	draw: function (ctx, info) {
+		var viewport = info.viewport.size;
+
+		ctx.fillRect(-viewport.x * 0.5, 0, viewport.x, 1);
 		system.iterate('draw', 'draw', ctx, info);
 	}
 });
