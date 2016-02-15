@@ -33,35 +33,32 @@ Object.defineProperty(proto, 'center', {
 	}
 });
 
-proto.containsPoint = function (point) {
+proto.contains = function (val) {
 	var pos = this.pos;
 	var maxPos = this.maxPos;
 
-	if (point.x >= pos.x && point.x < maxPos.x) {
-		if (point.y >= pos.y && point.y < maxPos.y) {
-			return true;
+	if (T.Vector.prototype.isPrototypeOf(val)) {
+		if (val.x >= pos.x && val.x < maxPos.x) {
+			if (val.y >= pos.y && val.y < maxPos.y) {
+				return true;
+			}
+		}
+	}
+	else if (T.Rect.prototype.isPrototypeOf(val)) {
+		var rectPos = val.pos;
+		var rectMaxPos = val.maxPos;
+
+		if (rectPos.x >= pos.x && rectMaxPos.x <= maxPos.x) {
+			if (rectPos.y >= pos.y && rectMaxPos.y <= maxPos.y) {
+				return true;
+			}
 		}
 	}
 
 	return false;
 };
 
-proto.containsRect = function (rect) {
-	var pos = this.pos;
-	var maxPos = this.maxPos;
-	var rectPos = rect.pos;
-	var rectMaxPos = rect.maxPos;
-
-	if (rectPos.x >= pos.x && rectMaxPos.x <= maxPos.x) {
-		if (rectPos.y >= pos.y && rectMaxPos.y <= maxPos.y) {
-			return true;
-		}
-	}
-
-	return false;
-};
-
-proto.intersectsWithRect = function (rect) {
+proto.intersects = function (rect) {
 	var pos = this.pos;
 	var maxPos = this.maxPos;
 	var rectPos = rect.pos;
@@ -116,7 +113,7 @@ proto.extend = function (val) {
 };
 
 proto.copy = function () {
-	return new Rect(pos.pos, this.size);
+	return new Rect(this.pos, this.size);
 };
 
 }(Tetragon));

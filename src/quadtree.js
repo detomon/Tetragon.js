@@ -61,7 +61,7 @@ QuadTree.prototype.addItem = function (item, rect) {
 			quad.items.push(item);
 			break;
 		}
-		else if (quad.rect.containsRect(rect)) {
+		else if (quad.rect.contains(rect)) {
 			if (rect.pos.x + rect.size.x < center.x) {
 				index = 0;
 			}
@@ -136,7 +136,7 @@ QuadTree.prototype.forEachItemInRect = function (callback, rect, quad) {
 	for (i = 0; i < quad.items.length; i ++) {
 		var item = quad.items[i];
 
-		if (rect.intersectsWithRect(item.rect)) {
+		if (rect.intersects(item.rect)) {
 			callback(item.item, item);
 		}
 	}
@@ -144,7 +144,7 @@ QuadTree.prototype.forEachItemInRect = function (callback, rect, quad) {
 	for (i = 0; i < quad.quads.length; i ++) {
 		var subquad = quad.quads[i];
 
-		if (subquad && rect.intersectsWithRect(subquad.rect)) {
+		if (subquad && rect.intersects(subquad.rect)) {
 			this.forEachItemInRect(callback, rect, subquad);
 		}
 	}
