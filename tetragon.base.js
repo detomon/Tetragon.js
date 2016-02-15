@@ -430,10 +430,9 @@ proto.setContextTransform = function (ctx) {
 (function (T) {
 'use strict';
 
-var Range = T.Range = function (start, length) {
-	this.start = start || 0;
+var Range = T.Range = function (location, length) {
+	this.location = location || 0;
 	this.length = length || 0;
-
 };
 
 var proto = Range.prototype;
@@ -441,23 +440,51 @@ var proto = Range.prototype;
 Object.defineProperty(proto, 'end', {
 	enumerable: true,
 	get: function () {
-		return this.start + this.length;
+		return this.location + this.length;
 	},
 	set: function (end) {
-		this.length = end - this.start;
+		this.location = end - this.length;
 	}
 });
 
-proto.containsPoint = function (point) {
-	return point >= this.start && point < this.end;
+proto.contains = function (value) {
+	if (T.Range.prototype.isPrototypeOf(val)) {
+		return value.location >= this.location && value.end <= this.end;
+	}
+	else {
+		return value >= this.location && value < this.end;
+	}
 };
 
-proto.containsRange = function (range) {
-	return range.start >= this.start && range.end <= this.end;
+proto.intersects = function (range) {
+	return range.location < this.end && range.end > this.location;
 };
 
-proto.intersectsWithRange = function (range) {
-	return range.start < this.end && range.end > this.start;
+proto.extend = function (val) {
+	var end = this.end;
+
+	if (Range.prototype.isPrototypeOf(val)) {
+		if (val.location < this.location) {
+			this.location = val.location;
+			this.length = end - this.location;
+		}
+		else if (val.end > end) {
+			this.length = val.end - this.location;
+		}
+	}
+	else {
+		if (val < this.location) {
+			this.location = val;
+			this.length = end - val;
+		}
+		else if (val > end) {
+			this.length = val - location;
+		}
+	}
+};
+
+proto.copy = function () {
+	return new Range(this.location, this.length);
 };
 
 }(Tetragon));
@@ -483,7 +510,7 @@ Object.defineProperty(proto, 'maxPos', {
 		return this.pos.add(this.size);
 	},
 	set: function (maxPos) {
-		this.size = maxPos.sub(this.size);
+		this.pos = maxPos.sub(this.size);
 	}
 });
 
@@ -497,35 +524,32 @@ Object.defineProperty(proto, 'center', {
 	}
 });
 
-proto.containsPoint = function (point) {
+proto.contains = function (val) {
 	var pos = this.pos;
 	var maxPos = this.maxPos;
 
-	if (point.x >= pos.x && point.x < maxPos.x) {
-		if (point.y >= pos.y && point.y < maxPos.y) {
-			return true;
+	if (T.Vector.prototype.isPrototypeOf(val)) {
+		if (val.x >= pos.x && val.x < maxPos.x) {
+			if (val.y >= pos.y && val.y < maxPos.y) {
+				return true;
+			}
+		}
+	}
+	else if (T.Rect.prototype.isPrototypeOf(val)) {
+		var rectPos = val.pos;
+		var rectMaxPos = val.maxPos;
+
+		if (rectPos.x >= pos.x && rectMaxPos.x <= maxPos.x) {
+			if (rectPos.y >= pos.y && rectMaxPos.y <= maxPos.y) {
+				return true;
+			}
 		}
 	}
 
 	return false;
 };
 
-proto.containsRect = function (rect) {
-	var pos = this.pos;
-	var maxPos = this.maxPos;
-	var rectPos = rect.pos;
-	var rectMaxPos = rect.maxPos;
-
-	if (rectPos.x >= pos.x && rectMaxPos.x < maxPos.x) {
-		if (rectPos.y >= pos.y && rectMaxPos.y < maxPos.y) {
-			return true;
-		}
-	}
-
-	return false;
-};
-
-proto.intersectsWithRect = function (rect) {
+proto.intersects = function (rect) {
 	var pos = this.pos;
 	var maxPos = this.maxPos;
 	var rectPos = rect.pos;
@@ -540,8 +564,47 @@ proto.intersectsWithRect = function (rect) {
 	return false;
 };
 
+proto.extend = function (val) {
+	var maxPos = this.maxPos;
+
+	if (T.Vector.prototype.isPrototypeOf(val)) {
+		if (val.x < this.pos.x) {
+			this.pos.x = val.x;
+			this.size.x = maxPos.x - val.x;
+		}
+		else if (val.x > maxPos.x) {
+			this.size.x = val.x - this.pos.x;
+		}
+
+		if (val.y < this.pos.y) {
+			this.pos.y = val.y;
+			this.size.y = maxPos.y - val.y;
+		}
+		else if (val.y > maxPos.y) {
+			this.size.y = maxPos.y - this.pos.y;
+		}
+	}
+	else if (T.Rect.prototype.isPrototypeOf(val)) {
+		if (val.pos.x < this.pos.x) {
+			this.pos.x = val.pos.x;
+			this.size.x = maxPos.x - val.pos.x;
+		}
+		else if (val.maxPos.x > maxPos.x) {
+			this.size.x = val.maxPos.x - this.pos.x;
+		}
+
+		if (val.pos.y < this.pos.y) {
+			this.pos.y = val.pos.y;
+			this.size.y = maxPos.y - val.pos.y;
+		}
+		else if (val.maxPos.y > maxPos.y) {
+			this.size.y = val.maxPos.y - this.pos.y;
+		}
+	}
+};
+
 proto.copy = function () {
-	return new Rect(this.pos.copy(), this.size.copy());
+	return new Rect(this.pos, this.size);
 };
 
 }(Tetragon));
