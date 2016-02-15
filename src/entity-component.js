@@ -36,7 +36,6 @@ proto.iterate = function (func) {
 			func.apply(this.data[i], args);
 		}
 	}
-
 };
 
 }(Tetragon));
