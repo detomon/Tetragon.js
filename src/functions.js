@@ -10,8 +10,10 @@ T.extend = function (obj, obj2) {
 	var arg;
 	var args = Array.prototype.slice.call(arguments, 1);
 
+	obj = obj || {};
+
 	for (i = 0; i < args.length; i ++) {
-		var arg = args[i];
+		var arg = args[i] || {};
 
 		for (j in arg) {
 			if (arg.hasOwnProperty(j)) {
