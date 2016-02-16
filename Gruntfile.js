@@ -6,11 +6,11 @@ module.exports = function(grunt) {
 		uglify: {
 			build: {
 				files: {
-					'tetragon.min.js': 'tetragon.js',
-					'tetragon.base.min.js': 'tetragon.base.js',
-					'tetragon.entity.min.js': 'tetragon.entity.js',
-					'tetragon.animation.min.js': 'tetragon.animation.js',
-					'tetragon.physics.min.js': 'tetragon.physics.js',
+					'dist/tetragon.min.js': 'dist/tetragon.js',
+					'dist/tetragon.base.min.js': 'dist/tetragon.base.js',
+					'dist/tetragon.entity.min.js': 'dist/tetragon.entity.js',
+					'dist/tetragon.animation.min.js': 'dist/tetragon.animation.js',
+					'dist/tetragon.physics.min.js': 'dist/tetragon.physics.js',
 				},
 				options: {
 					sourceMap: true,
@@ -22,10 +22,10 @@ module.exports = function(grunt) {
 		concat_in_order: {
 			build: {
 				files: {
-					'tetragon.js': [
+					'dist/tetragon.js': [
 						'src/*.js',
 					],
-					'tetragon.base.js': [
+					'dist/tetragon.base.js': [
 						'src/tetragon.js',
 						'src/functions.js',
 						'src/request-animation-frame.polyfill.js',
@@ -36,15 +36,15 @@ module.exports = function(grunt) {
 						'src/range.js',
 						'src/rect.js',
 					],
-					'tetragon.entity.js': [
+					'dist/tetragon.entity.js': [
 						'src/tetragon.js',
 						'src/entity*.js',
 					],
-					'tetragon.animation.js': [
+					'dist/tetragon.animation.js': [
 						'src/tetragon.js',
 						'src/tween.js',
 					],
-					'tetragon.physics.js': [
+					'dist/tetragon.physics.js': [
 						'src/tetragon.js',
 						'src/point-mass.js',
 						'src/constraint.js',
