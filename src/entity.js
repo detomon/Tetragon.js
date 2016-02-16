@@ -17,7 +17,7 @@ var proto = Entity.prototype;
 proto.addComponent = function (component) {
 	var args = Array.prototype.slice.call(arguments, 1);
 
-	if (typeof(component) == 'string') {
+	if (typeof component == 'string') {
 		component = this.system.component(component);
 
 		if (!component) {
@@ -43,7 +43,7 @@ proto.addComponent = function (component) {
 };
 
 proto.removeComponent = function (component) {
-	if (typeof(component) == 'string') {
+	if (typeof component == 'string') {
 		component = this.system.component(component);
 
 		if (!component) {
