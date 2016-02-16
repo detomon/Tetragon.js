@@ -53,9 +53,11 @@ QuadTree.prototype.addItem = function (item, rect) {
 	var index;
 	var quad = this;
 	var item = new Item(item, rect);
-	var center = quad.rect.center;
+	var center;
 
 	while (quad) {
+		center = quad.rect.center;
+
 		if (!quad.items.length) {
 			item.quad = quad;
 			quad.items.push(item);
@@ -93,9 +95,8 @@ QuadTree.prototype.addItem = function (item, rect) {
 		}
 
 		if (!quad.quads[index]) {
-			var quadRect;
+			var quadRect = quad.rect.copy();
 
-			quadRect = quad.rect.copy();
 			quadRect.size.x *= 0.5;
 			quadRect.size.y *= 0.5;
 
