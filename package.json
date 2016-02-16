@@ -1,11 +1,8 @@
 {
   "name": "Tetragon.js",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Javascript framework for canvas animations including an entity system",
   "main": "tetragon.js",
-  "scripts": {
-    "test": "test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/detomon/Tetragon.js.git"
@@ -27,6 +24,7 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-concat-in-order": "^0.1.6",
-    "grunt-contrib-uglify": "^0.11.0"
+    "grunt-contrib-uglify": "^0.11.0",
+    "grunt-update-json": "^0.2.2"
   }
 }

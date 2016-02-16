@@ -73,14 +73,46 @@ module.exports = function(grunt) {
 			},
 		},
 
+		update_json: {
+			options: {
+				src: './package.json',
+				indent: '  '
+			},
+			bower: {
+				src: 'package.json',    // where to read from
+				dest: 'bower.json',     // where to write to
+				// the fields to update, as a String Grouping
+				//fields: 'name version description repository'
+				fields: {
+					'version': 'version',
+					'description': 'description',
+					'repository': 'repository',
+					'keywords': 'keywords',
+					'main': 'main'
+				},
+			},
+			component: {
+				src: 'package.json',    // where to read from
+				dest: 'component.json',     // where to write to
+				// the fields to update, as a String Grouping
+				//fields: 'name version description repository'
+				fields: {
+					'version': 'version',
+					'description': 'description',
+					'keywords': 'keywords'
+				},
+			},
+		},
 	});
 
 	grunt.loadNpmTasks('grunt-concat-in-order');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-update-json');
 
 	grunt.registerTask('default', [
 		'concat_in_order',
 		'uglify',
+		'update_json',
 	]);
 
 };
