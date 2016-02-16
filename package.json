@@ -2,7 +2,7 @@
   "name": "Tetragon.js",
   "version": "0.1.2",
   "description": "Javascript framework for canvas animations including an entity system",
-  "main": "tetragon.js",
+  "main": "dist/tetragon.min.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/detomon/Tetragon.js.git"

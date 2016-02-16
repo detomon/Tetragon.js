@@ -9,7 +9,7 @@
   "authors": [
     "Simon Schoenenberger"
   ],
-  "main": "tetragon.js",
+  "main": "dist/tetragon.min.js",
   "license": "MIT",
   "homepage": "https://github.com/detomon/Tetragon.js/wiki",
   "ignore": [
