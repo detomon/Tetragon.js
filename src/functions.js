@@ -32,7 +32,19 @@ T.loadImages = function (images, options) {
 	var keys;
 	var options    = options || {};
 	var loadCount  = 0;
+	var errorCount = 0;
 	var loadedImgs = {};
+
+	function handleDone() {
+		if (errorCount) {
+			if (options.error) {
+				options.error(loadedImgs);
+			}
+		}
+		else if (options.done) {
+			options.done(loadedImgs);
+		}
+	}
 
 	function waitForLoad(src, key) {
 		var image = new Image();
@@ -42,13 +54,27 @@ T.loadImages = function (images, options) {
 				loadedImgs[key] = image;
 
 				if (options.load) {
-					options.load(image);
+					options.load(key, image);
 				}
 
 				if (++ loadCount >= keys.length) {
-					if (options.done) {
-						options.done(loadedImgs);
-					}
+					handleDone();
+				}
+			}
+		};
+
+		image.onerror = function () {
+			errorCount ++;
+
+			if (!loadedImgs[key]) {
+				loadedImgs[key] = undefined;
+
+				if (options.fail) {
+					options.fail(key, src);
+				}
+
+				if (++ loadCount >= keys.length) {
+					handleDone();
 				}
 			}
 		};
@@ -60,7 +86,9 @@ T.loadImages = function (images, options) {
 
 	options = T.extend({
 		done: null,
-		load: null
+		error: null,
+		load: null,
+		fail: null,
 	}, options);
 
 	keys = Object.keys(images);
