@@ -26,6 +26,7 @@ function drawQuad(ctx, quad) {
 	for (var i = 0; i < quad.items.length; i ++) {
 		rect = quad.items[i].rect;
 		ctx.strokeRect(rect.pos.x + 0.5, rect.pos.y + 0.5, rect.size.x - 1.0, rect.size.y - 1.0);
+		ctx.fillText(quad.items[i].item, rect.pos.x, rect.pos.y);
 	}
 
 	for (var i = 0; i < quad.quads.length; i ++) {
@@ -50,9 +51,7 @@ var item5 = quadtree.addItem('5', new Tetragon.Rect(new Tetragon.Vector(-200, 20
 // item4.remove();
 // item5.remove();
 
-quadtree.forEachItemInRect(function (item) {
-	console.log(item);
-}, new Tetragon.Rect(new Tetragon.Vector(-400, -300), new Tetragon.Vector(400, 600)));
+var offset = new Tetragon.Vector();
 
 var controller = new Tetragon.Canvas({
 	element: canvas,
@@ -61,7 +60,24 @@ var controller = new Tetragon.Canvas({
 	},
 	draw: function (ctx, info) {
 		drawQuad(ctx, quadtree);
+
+		ctx.save();
+		ctx.globalAlpha = 0.5;
+		var c = 0;
+
+		quadtree.forEachItemInRect(function (item, treeItem) {
+			var rect = treeItem.rect;
+			ctx.fillRect(rect.pos.x, rect.pos.y, rect.size.x, rect.size.y);
+			c ++;
+		}, new Tetragon.Rect(offset));
+
+		ctx.fillText(c, 10, -10);
+		ctx.restore();
 	}
+});
+
+controller.element.addEventListener('mousemove', function (e) {
+	offset = controller.worldPositionFromOffset(controller.offsetFromEvent(e));
 });
 
 controller.startAnimating();
