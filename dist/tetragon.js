@@ -1150,9 +1150,11 @@ QuadTree.prototype.addItem = function (item, rect) {
 	var index;
 	var quad = this;
 	var item = new Item(item, rect);
-	var center = quad.rect.center;
+	var center;
 
 	while (quad) {
+		center = quad.rect.center;
+
 		if (!quad.items.length) {
 			item.quad = quad;
 			quad.items.push(item);
@@ -1190,9 +1192,8 @@ QuadTree.prototype.addItem = function (item, rect) {
 		}
 
 		if (!quad.quads[index]) {
-			var quadRect;
+			var quadRect = quad.rect.copy();
 
-			quadRect = quad.rect.copy();
 			quadRect.size.x *= 0.5;
 			quadRect.size.y *= 0.5;
 
@@ -1443,7 +1444,7 @@ proto.copy = function () {
  * @depend matrix.js
  */
 
-(function (T) {
+(function (window, document, T) {
 'use strict';
 
 var TRANSFORM_UPDATED = 1 << 0;
@@ -1672,10 +1673,12 @@ proto.offsetFromEvent = function (e) {
 	var scale = this.element.offsetWidth / this.element.width;
 
 	if (!e.changedTouches) {
-		var docElem = document.documentElement;
+		var doc = document.documentElement;
+		var left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+		var top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
 
-		offset.x = e.clientX - offset.x + docElem.scrollLeft;
-		offset.y = e.clientY - offset.y + docElem.scrollTop;
+		offset.x = e.clientX - offset.x + left;
+		offset.y = e.clientY - offset.y + top;
 	}
 	// is touch event
 	else {
@@ -1738,4 +1741,4 @@ proto._removeResizeListener = function () {
 	}
 };
 
-}(Tetragon));
+}(window, document, Tetragon));
