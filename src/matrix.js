@@ -44,7 +44,7 @@ proto.rotate = function (a) {
 	s = Math.sin(a);
 	c = Math.cos(a);
 
-	var m = this.multiply(new T.Matrix([
+	var m = this.mult(new T.Matrix([
 		c, s,
 		-s, c,
 		0, 0,
