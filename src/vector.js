@@ -6,8 +6,14 @@
 'use strict';
 
 var Vector = T.Vector = function (x, y) {
-	this.x = parseFloat(x) || 0.0;
-	this.y = parseFloat(y) || 0.0;
+	if (Vector.prototype.isPrototypeOf(x)) {
+		this.x = x.x;
+		this.y = x.y;
+	}
+	else {
+		this.x = parseFloat(x) || 0.0;
+		this.y = parseFloat(y) || 0.0;
+	}
 };
 
 var proto = Vector.prototype;
