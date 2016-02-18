@@ -39,17 +39,18 @@ function drawQuad(ctx, quad) {
 var quadtree = new Tetragon.QuadTree(new Tetragon.Rect(new Tetragon.Vector(-400, -300), new Tetragon.Vector(800, 600)));
 var canvas = document.getElementById('canvas');
 
-var item1 = quadtree.addItem('1', new Tetragon.Rect(new Tetragon.Vector(20, 20), new Tetragon.Vector(100, 100)));
-var item2 = quadtree.addItem('2', new Tetragon.Rect(new Tetragon.Vector(-150, -150), new Tetragon.Vector(100, 100)));
-var item3 = quadtree.addItem('3', new Tetragon.Rect(new Tetragon.Vector(40, 20), new Tetragon.Vector(100, 100)));
-var item4 = quadtree.addItem('4', new Tetragon.Rect(new Tetragon.Vector(50, 50), new Tetragon.Vector(50, 50)));
-var item5 = quadtree.addItem('5', new Tetragon.Rect(new Tetragon.Vector(-200, 200), new Tetragon.Vector(50, 50)));
+var items = [];
 
-// item1.remove();
-// item2.remove();
-// item3.remove();
-// item4.remove();
-// item5.remove();
+for (var i = 0; i < 20; i ++) {
+	var x = Math.random() * 400 - 200;
+	var y = Math.random() * 300 - 150;
+	var s = Math.random() * 50 + 10;
+	var item = quadtree.addItem(i, new Tetragon.Rect(new Tetragon.Vector(x, y), new Tetragon.Vector(s, s)));
+
+	var a = Math.random() * 2 * Math.PI;
+	item.v = new Tetragon.Vector(2 * Math.cos(a), 2 * Math.sin(a));
+	items.push(item);
+}
 
 var offset = new Tetragon.Vector();
 
@@ -57,6 +58,31 @@ var controller = new Tetragon.Canvas({
 	element: canvas,
 	framerate: 0,
 	tick: function (dt, info) {
+		var viewport = info.viewport.size.mult(0.5);
+
+		for (var i = 0; i < items.length; i ++) {
+			var item = items[i];
+			var rect = item.rect;
+			var maxPos = rect.maxPos;
+
+			rect.pos.inc(item.v);
+
+			if (rect.pos.x < -viewport.x && item.v.x < 0) {
+				item.v.x = -item.v.x;
+			}
+			else if (maxPos.x > viewport.x && item.v.x > 0) {
+				item.v.x = -item.v.x;
+			}
+
+			if (rect.pos.y < -viewport.y && item.v.y < 0) {
+				item.v.y = -item.v.y;
+			}
+			else if (maxPos.y > viewport.y && item.v.y > 0) {
+				item.v.y = -item.v.y;
+			}
+
+			item.move(rect);
+		}
 	},
 	draw: function (ctx, info) {
 		drawQuad(ctx, quadtree);
