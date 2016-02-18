@@ -1,59 +1,32 @@
 /**
  * @depend tetragon.js
+ * @depend rect.js
  */
 
 (function (T) {
 'use strict';
 
 var QuadTree = T.QuadTree = function (rect) {
-	this.quads = [];
-	this.quadFlags = 0;
-	this.items = [];
-	this.rect = rect.copy();
+	Quad.call(this, rect);
 };
 
-var Quad = QuadTree.Quad = function (parent, idx, rect) {
+var Quad = QuadTree.Quad = function (rect, parent, idx) {
 	this.parent = parent;
 	this.idx = idx;
 	this.quads = [];
 	this.quadFlags = 0;
 	this.items = [];
-	this.rect = rect.copy();
+	this.rect = new T.Rect(rect);
 };
 
-var Item = QuadTree.Item = function (item, rect) {
-	this.quad = null;
-	this.item = item;
-	this.rect = rect.copy();
-};
-
-Item.prototype.remove = function () {
-	var idx;
-	var parent;
-	var quad = this.quad;
-
-	idx = quad.items.indexOf(this);
-	quad.items.splice(idx, 1);
-
-	for (; quad; quad = parent) {
-		parent = quad.parent;
-
-		if (parent && !quad.items.length && !quad.quadFlags) {
-			delete parent.quads[quad.idx];
-			parent.quadFlags &= ~(1 << quad.idx);
-		}
-	}
-};
-
-Item.prototype.move = function (rect) {
-	throw 'unimplemented method move';
-};
-
-QuadTree.prototype.addItem = function (item, rect) {
+Quad.prototype.addItem = function (object, rect, item) {
 	var index;
 	var quad = this;
-	var item = new Item(item, rect);
 	var center;
+
+	if (!item) {
+		item = new Item(object, rect);
+	}
 
 	while (quad) {
 		center = quad.rect.center;
@@ -119,7 +92,7 @@ QuadTree.prototype.addItem = function (item, rect) {
 				}
 			}
 
-			quad.quads[index] = new Quad(quad, index, quadRect);
+			quad.quads[index] = new Quad(quadRect, quad, index);
 			quad.quadFlags |= (1 << index);
 		}
 
@@ -129,10 +102,9 @@ QuadTree.prototype.addItem = function (item, rect) {
 	return item;
 };
 
-QuadTree.prototype.forEachItemInRect = function (callback, rect, quad) {
+Quad.prototype.forEachItemInRect = function (callback, rect) {
 	var i;
-
-	quad = quad || this;
+	var quad = this;
 
 	for (i = 0; i < quad.items.length; i ++) {
 		var item = quad.items[i];
@@ -146,9 +118,58 @@ QuadTree.prototype.forEachItemInRect = function (callback, rect, quad) {
 		var subquad = quad.quads[i];
 
 		if (subquad && rect.intersects(subquad.rect)) {
-			this.forEachItemInRect(callback, rect, subquad);
+			subquad.forEachItemInRect(callback, rect);
 		}
 	}
+};
+
+QuadTree.prototype = new Quad();
+
+var Item = QuadTree.Item = function (item, rect) {
+	this.quad = null;
+	this.item = item;
+	this.rect = rect.copy();
+};
+
+Item.prototype.remove = function (toQuad) {
+	var idx;
+	var parent;
+	var quad = this.quad;
+
+	idx = quad.items.indexOf(this);
+	quad.items.splice(idx, 1);
+
+	for (; quad; quad = parent) {
+		if (quad == toQuad) {
+			break;
+		}
+
+		parent = quad.parent;
+
+		if (parent && !quad.items.length && !quad.quadFlags) {
+			delete parent.quads[quad.idx];
+			parent.quadFlags &= ~(1 << quad.idx);
+		}
+	}
+};
+
+Item.prototype.move = function (rect) {
+	var quad = this.quad;
+
+	// search lowest quad containing new rect
+	while (quad.parent) {
+		if (quad.rect.contains(rect)) {
+			break;
+		}
+
+		quad = quad.parent;
+	}
+
+	this.rect = new T.Rect(rect);
+
+	// remove from current quad but do not remove new quad
+	this.remove(quad);
+	quad.addItem(null, rect, this);
 };
 
 }(Tetragon));
