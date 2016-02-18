@@ -7,8 +7,14 @@
 'use strict';
 
 var Rect = T.Rect = function (p, s) {
-	this.pos  = p ? p.copy() : new T.Vector();
-	this.size = s ? s.copy() : new T.Vector();
+	if (Rect.prototype.isPrototypeOf(p)) {
+		this.pos  = p.pos.copy();
+		this.size = p.size.copy();
+	}
+	else {
+		this.pos  = p ? p.copy() : new T.Vector();
+		this.size = s ? s.copy() : new T.Vector();
+	}
 };
 
 var proto = Rect.prototype;
