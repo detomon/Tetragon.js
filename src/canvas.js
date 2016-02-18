@@ -33,10 +33,10 @@ var Canvas = T.Canvas = function (options) {
 	this.framerate     = options.framerate;
 	this.animationLoop = new T.AnimationLoop(this.framerate);
 	this._viewport     = new T.Rect();
-	this._transform    = null;
 	this._inverseTrans = null;
 	this._flags        = 0;
 	this.options       = options;
+	this.matrixStack   = [];
 
 	if (options.autoClear) {
 		this._flags |= AUTO_CLEAR;
@@ -60,29 +60,25 @@ Object.defineProperty(proto, 'viewport', {
 
 Object.defineProperty(proto, 'transform', {
 	get: function () {
-		var transform = this._transform;
+		var transform;
 
-		if (!transform) {
-			transform = new T.Matrix();
-
-			if (this.options.origin) {
-				transform.translate(this.options.origin.mult(this.viewport.size));
-			}
-
-			if (this.options.scale) {
-				transform.scale(this.options.scale);
-			}
+		if (!this.matrixStack.length) {
+			this._prepareMatrixStack();
 		}
 
-		return transform;
+		return this.matrixStack[this.matrixStack.length - 1].copy();
 	},
 	set: function (transform) {
-		if (transform) {
-			transform = transform.copy()
+		var matrix;
+
+		if (!this.matrixStack.length) {
+			this._prepareMatrixStack();
 		}
 
-		this._transform = transform;
-		this._transform.setContextTransform(this.ctx);
+		matrix = this.matrixStack[this.matrixStack.length - 1];
+		matrix.set(transform);
+
+		matrix.setContextTransform(this.ctx);
 		this._flags |= TRANSFORM_UPDATED;
 	}
 });
@@ -97,6 +93,20 @@ Object.defineProperty(proto, 'inverseTransform', {
 		return this._inverseTrans.copy();
 	}
 });
+
+proto._prepareMatrixStack = function () {
+	var transform = new T.Matrix();
+
+	if (this.options.origin) {
+		transform.translate(this.options.origin.mult(this.viewport.size));
+	}
+
+	if (this.options.scale) {
+		transform.scale(this.options.scale);
+	}
+
+	this.matrixStack.push(transform);
+};
 
 proto._updateTransform = function (transform) {
 	transform = transform || this.transform;
@@ -265,6 +275,33 @@ proto.worldPositionFromOffset = function (offset) {
 proto.offsetFromWorldPosition = function (offset) {
 	return this.transform.mult(offset);
 };
+
+/**
+ * Push new matrix to stack
+ */
+proto.pushMatrix = function () {
+	var matrix;
+
+	if (this.matrixStack.length) {
+		matrix = this.matrixStack[this.matrixStack.length - 1].copy();
+	}
+	else {
+		matrix = this.transform;
+	}
+
+	this.matrixStack.push(matrix);
+};
+
+/**
+ * Pop matrix from stack
+ */
+proto.popMatrix = function () {
+	if (this.matrixStack.length > 1) {
+		this.matrixStack.pop();
+		this.transform = this.matrixStack[this.matrixStack.length - 1];
+	}
+};
+
 /**
  * Window resize handler
  */
