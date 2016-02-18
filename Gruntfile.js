@@ -35,6 +35,7 @@ module.exports = function(grunt) {
 						'src/matrix.js',
 						'src/range.js',
 						'src/rect.js',
+						'src/quadtree.js',
 					],
 					'dist/tetragon.entity.js': [
 						'src/tetragon.js',
@@ -48,7 +49,6 @@ module.exports = function(grunt) {
 						'src/tetragon.js',
 						'src/point-mass.js',
 						'src/constraint.js',
-						'src/quadtree.js',
 					],
 				},
 				options: {
