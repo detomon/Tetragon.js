@@ -44,6 +44,7 @@ module.exports = function(grunt) {
 					'dist/tetragon.animation.js': [
 						'src/tetragon.js',
 						'src/tween.js',
+						'src/imageupscaler.js',
 					],
 					'dist/tetragon.physics.js': [
 						'src/tetragon.js',
