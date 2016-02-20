@@ -31,7 +31,7 @@
 'use strict';
 
 w.Tetragon = w.Tetragon || {
-	version: '0.1.7',
+	version: '0.1.8',
 };
 
 }(window));
@@ -429,6 +429,13 @@ proto.advanceToTime = function (time, tickFunc) {
 		tickFunc(this.framerate);
 		this.lastTime += this.framerate;
 	}
+};
+
+/**
+ * Reset loop
+ */
+proto.reset = function () {
+	this.lastTime = 0;
 };
 
 }(Tetragon));
@@ -1578,6 +1585,8 @@ proto.startAnimating = function () {
 	var self = this;
 
 	if (!this.animationFrame) {
+		this.animationLoop.reset();
+
 		this.animationFrame = window.requestAnimationFrame(function () {
 			self._tick();
 		});

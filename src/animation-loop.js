@@ -40,4 +40,11 @@ proto.advanceToTime = function (time, tickFunc) {
 	}
 };
 
+/**
+ * Reset loop
+ */
+proto.reset = function () {
+	this.lastTime = 0;
+};
+
 }(Tetragon));
