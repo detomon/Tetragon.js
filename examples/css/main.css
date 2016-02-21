@@ -4,14 +4,23 @@ html, body {
 	background: #f7f7f7;
 }
 
-.canvas-wrapper {
+.content-wrapper {
 	max-width: 800px;
 	margin: 0 auto;
 	background: #ffffff;
 }
 
+.canvas-wrapper {
+	height: 0;
+	padding-bottom: 75%;
+	position: relative;
+}
+
 canvas {
+	left: 0;
+	top: 0;
+	position: absolute;
 	width: 100%;
-	height: auto;
+	height: 100%;
 	display: block;
 }
