@@ -31,7 +31,7 @@
 'use strict';
 
 w.Tetragon = w.Tetragon || {
-	version: '0.1.8',
+	version: '0.1.9',
 };
 
 }(window));
@@ -1412,7 +1412,6 @@ var Canvas = T.Canvas = function (options) {
 		autoClear: true,
 		origin: new T.Vector(0.5, 0.5),
 		scale: null,
-		autoSetHeight: /MSIE/.test(navigator.userAgent), // IE 10 and below
 	}, options);
 
 	this.element       = options.element;
@@ -1590,10 +1589,6 @@ proto.startAnimating = function () {
 		this.animationFrame = window.requestAnimationFrame(function () {
 			self._tick();
 		});
-
-		if (this.options.autoSetHeight) {
-			this._addResizeListener();
-		}
 	}
 };
 
@@ -1604,15 +1599,11 @@ proto.stopAnimating = function () {
 	if (this.animationFrame) {
 		window.cancelAnimationFrame(this.animationFrame);
 		this.animationFrame = null;
-
-		this._removeResizeListener();
 	}
 };
 
 /**
  * Redraw frame
- *
- * When resizing
  */
 proto.redraw = function () {
 	this._draw();
@@ -1623,24 +1614,12 @@ proto.redraw = function () {
  */
 proto.offsetFromEvent = function (e) {
 	var elem = this.element;
-	var x = elem.offsetLeft;
-	var y = elem.offsetTop;
-
-	while (elem = elem.offsetParent) {
-		x += elem.offsetLeft;
-		y += elem.offsetTop;
-	}
-
-	var offset = new T.Vector(x, y);
-	var scale = this.element.offsetWidth / this.element.width;
+	var rect = elem.getBoundingClientRect();
+	var offset = new T.Vector(rect.left, rect.top);
 
 	if (!e.changedTouches) {
-		var doc = document.documentElement;
-		var left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-		var top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-
-		offset.x = e.clientX - offset.x + left;
-		offset.y = e.clientY - offset.y + top;
+		offset.x = e.clientX - offset.x;
+		offset.y = e.clientY - offset.y;
 	}
 	// is touch event
 	else {
@@ -1648,7 +1627,10 @@ proto.offsetFromEvent = function (e) {
 		offset.y = e.changedTouches[0].pageY - offset.y;
 	}
 
-	offset = offset.mult(1.0 / scale);
+	offset = offset.mult(new T.Vector(
+		this.element.width / rect.width,
+		this.element.height / rect.height
+	));
 
 	return offset;
 };
@@ -1690,43 +1672,6 @@ proto.popMatrix = function () {
 	if (this.matrixStack.length > 1) {
 		this.matrixStack.pop();
 		this.transform = this.matrixStack[this.matrixStack.length - 1];
-	}
-};
-
-/**
- * Window resize handler
- */
-proto._resizeEventHandler = null;
-
-/**
- * Add event listeners for window resize
- */
-proto._addResizeListener = function () {
-	var self = this;
-
-	if (!this._resizeEventHandler) {
-		this._resizeEventHandler = function () {
-			var parentNode = self.element.parentNode;
-			var rect = parentNode.getBoundingClientRect();
-			var ratio = self.element.height / self.element.width;
-
-			self.element.style.height = parseInt(rect.width * ratio) + 'px';
-		};
-
-		window.addEventListener('resize', this._resizeEventHandler);
-		window.addEventListener('orientationchange', this._resizeEventHandler);
-		this._resizeEventHandler();
-	}
-};
-
-/**
- * Remove event listeners for window resize
- */
-proto._removeResizeListener = function () {
-	if (this._resizeEventHandler) {
-		window.removeEventListener('resize', this._resizeEventHandler);
-		window.removeEventListener('orientationchange', this._resizeEventHandler);
-		this._resizeEventHandler = null;
 	}
 };
 
