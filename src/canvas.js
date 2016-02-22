@@ -225,24 +225,12 @@ proto.redraw = function () {
  */
 proto.offsetFromEvent = function (e) {
 	var elem = this.element;
-	var x = elem.offsetLeft;
-	var y = elem.offsetTop;
-
-	while (elem = elem.offsetParent) {
-		x += elem.offsetLeft;
-		y += elem.offsetTop;
-	}
-
-	var offset = new T.Vector(x, y);
-	var scale = this.element.offsetWidth / this.element.width;
+	var rect = elem.getBoundingClientRect();
+	var offset = new T.Vector(rect.left, rect.top);
 
 	if (!e.changedTouches) {
-		var doc = document.documentElement;
-		var left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-		var top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-
-		offset.x = e.clientX - offset.x + left;
-		offset.y = e.clientY - offset.y + top;
+		offset.x = e.clientX - offset.x;
+		offset.y = e.clientY - offset.y;
 	}
 	// is touch event
 	else {
@@ -250,7 +238,10 @@ proto.offsetFromEvent = function (e) {
 		offset.y = e.changedTouches[0].pageY - offset.y;
 	}
 
-	offset = offset.mult(1.0 / scale);
+	offset = offset.mult(new T.Vector(
+		this.element.width / rect.width,
+		this.element.height / rect.height
+	));
 
 	return offset;
 };
