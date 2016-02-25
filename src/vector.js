@@ -105,9 +105,18 @@ proto.rotate = function (a) {
 	);
 };
 
-proto.reflect = function (wall) {
+proto.reflect = function (wall, refraction) {
+	var out;
+
+	refraction = refraction === undefined ? 1.0 : 0.5 + refraction * 0.5;
 	wall = wall.normalize();
-	return this.sub(wall.mult(2.0 * wall.dot(this)));
+	out = this.sub(wall.mult(2.0 * wall.dot(this)).mult(refraction));
+
+	if (refraction != 2.0) {
+		out = out.normalize(this.length);
+	}
+
+	return out;
 };
 
 proto.inc = function (vec) {
