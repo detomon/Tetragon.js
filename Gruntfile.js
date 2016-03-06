@@ -28,7 +28,6 @@ module.exports = function(grunt) {
 					'dist/tetragon.base.js': [
 						'src/tetragon.js',
 						'src/functions.js',
-						'src/request-animation-frame.polyfill.js',
 						'src/canvas.js',
 						'src/animation-loop.js',
 						'src/vector.js',
