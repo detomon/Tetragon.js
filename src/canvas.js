@@ -217,7 +217,14 @@ proto.stopAnimating = function () {
  * Redraw frame
  */
 proto.redraw = function () {
-	this._draw();
+	var self = this;
+
+	this._draw({
+		viewport: self.viewport,
+		ctx: self.ctx,
+		deltaTime: 0,
+		frameDelta: 0,
+	});
 };
 
 /**
