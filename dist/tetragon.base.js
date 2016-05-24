@@ -2,7 +2,7 @@
 'use strict';
 
 w.Tetragon = w.Tetragon || {
-	version: '0.1.9',
+	version: '0.1.10',
 };
 
 }(window));
@@ -122,35 +122,6 @@ T.loadImages = function (images, options) {
 };
 
 }(Tetragon));
-
-/**
- * Polyfill for window.requestAnimationFrame
- *
- * http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
- */
-(function (w) {
-	var lastTime = 0;
-	var vendors = ['webkit', 'moz'];
-	for(var x = 0; x < vendors.length && !w.requestAnimationFrame; ++x) {
-		w.requestAnimationFrame = w[vendors[x]+'RequestAnimationFrame'];
-		w.cancelAnimationFrame =
-		  w[vendors[x]+'CancelAnimationFrame'] || w[vendors[x]+'CancelRequestAnimationFrame'];
-	}
-
-	if (!w.requestAnimationFrame)
-		w.requestAnimationFrame = function (callback, element) {
-			var currTime = new Date().getTime();
-			var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-			var id = w.setTimeout(function () { callback(currTime + timeToCall); }, timeToCall);
-			lastTime = currTime + timeToCall;
-			return id;
-		};
-
-	if (!w.cancelAnimationFrame)
-		w.cancelAnimationFrame = function (id) {
-			clearTimeout(id);
-		};
-}(window));
 
 /**
  * @depend tetragon.js
@@ -310,9 +281,18 @@ proto.rotate = function (a) {
 	);
 };
 
-proto.reflect = function (wall) {
+proto.reflect = function (wall, refraction) {
+	var out;
+
+	refraction = refraction === undefined ? 1.0 : 0.5 + refraction * 0.5;
 	wall = wall.normalize();
-	return this.sub(wall.mult(2.0 * wall.dot(this)));
+	out = this.sub(wall.mult(2.0 * wall.dot(this)).mult(refraction));
+
+	if (refraction != 2.0) {
+		out = out.normalize(this.length);
+	}
+
+	return out;
 };
 
 proto.inc = function (vec) {
@@ -1053,7 +1033,14 @@ proto.stopAnimating = function () {
  * Redraw frame
  */
 proto.redraw = function () {
-	this._draw();
+	var self = this;
+
+	this._draw({
+		viewport: self.viewport,
+		ctx: self.ctx,
+		deltaTime: 0,
+		frameDelta: 0,
+	});
 };
 
 /**
