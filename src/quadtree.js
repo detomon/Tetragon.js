@@ -139,11 +139,7 @@ Item.prototype.remove = function (toQuad) {
 	idx = quad.items.indexOf(this);
 	quad.items.splice(idx, 1);
 
-	for (; quad; quad = parent) {
-		if (quad == toQuad) {
-			break;
-		}
-
+	for (; quad && quad != toQuad; quad = parent) {
 		parent = quad.parent;
 
 		if (parent && !quad.items.length && !quad.quadFlags) {
