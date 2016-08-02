@@ -2,7 +2,7 @@
 'use strict';
 
 w.Tetragon = w.Tetragon || {
-	version: '0.1.10',
+	version: '0.1.11',
 };
 
 }(window));
@@ -146,13 +146,14 @@ proto.addComponent = function (component) {
 		return null;
 	}
 
-	var instance = {};
+	var instance = {
+		entity: this,
+	};
 
 	if (component.construct) {
 		component.construct.apply(instance, args);
 	}
 
-	instance.entity = this;
 	component.data[this.id - 1] = instance;
 	this.system.entities[this.id - 1] |= (1 << component.id);
 
