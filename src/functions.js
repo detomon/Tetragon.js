@@ -49,6 +49,10 @@ T.loadImages = function (images, options) {
 	function waitForLoad(src, key) {
 		var image = new Image();
 
+		if (options.allowCrossOrigin) {
+			image.setAttribute('crossorigin', 'anonymous');
+		}
+
 		image.onload = function () {
 			if (!loadedImgs[key]) {
 				loadedImgs[key] = image;
@@ -89,6 +93,7 @@ T.loadImages = function (images, options) {
 		error: null,
 		load: null,
 		fail: null,
+		allowCrossOrigin: false,
 	}, options);
 
 	keys = Object.keys(images);
