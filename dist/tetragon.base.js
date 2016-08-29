@@ -2,7 +2,7 @@
 'use strict';
 
 w.Tetragon = w.Tetragon || {
-	version: '0.1.11',
+	version: '0.1.12',
 };
 
 }(window));
@@ -58,6 +58,10 @@ T.loadImages = function (images, options) {
 	function waitForLoad(src, key) {
 		var image = new Image();
 
+		if (options.allowCrossOrigin) {
+			image.setAttribute('crossorigin', 'anonymous');
+		}
+
 		image.onload = function () {
 			if (!loadedImgs[key]) {
 				loadedImgs[key] = image;
@@ -98,6 +102,7 @@ T.loadImages = function (images, options) {
 		error: null,
 		load: null,
 		fail: null,
+		allowCrossOrigin: false,
 	}, options);
 
 	keys = Object.keys(images);
@@ -779,11 +784,7 @@ Item.prototype.remove = function (toQuad) {
 	idx = quad.items.indexOf(this);
 	quad.items.splice(idx, 1);
 
-	for (; quad; quad = parent) {
-		if (quad == toQuad) {
-			break;
-		}
-
+	for (; quad && quad != toQuad; quad = parent) {
 		parent = quad.parent;
 
 		if (parent && !quad.items.length && !quad.quadFlags) {
@@ -950,7 +951,9 @@ proto._tick = function () {
 			dt = 1.0 / 60.0;
 		}
 		else {
-			dt = time - this.animationLoop.lastTime;
+			// limit previous time if animation was paused or had a greater lag,
+			// the loop will not try to catch up with a too big time step
+			dt = Math.min(1.0 / 30.0, time - this.animationLoop.lastTime);
 		}
 
 		info.deltaTime = dt;
