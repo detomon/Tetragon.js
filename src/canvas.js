@@ -134,7 +134,9 @@ proto._tick = function () {
 			dt = 1.0 / 60.0;
 		}
 		else {
-			dt = time - this.animationLoop.lastTime;
+			// limit previous time if animation was paused or had a greater lag,
+			// the loop will not try to catch up with a too big time step
+			dt = Math.min(1.0 / 30.0, time - this.animationLoop.lastTime);
 		}
 
 		info.deltaTime = dt;
