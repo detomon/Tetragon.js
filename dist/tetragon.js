@@ -2,7 +2,7 @@
 'use strict';
 
 w.Tetragon = w.Tetragon || {
-	version: '0.1.12',
+	version: '0.1.13',
 };
 
 }(window));
@@ -788,19 +788,22 @@ proto.delete = function () {
 (function (T) {
 'use strict';
 
-T.extend = function (obj, obj2) {
-	var i, j;
-	var arg;
-	var args = Array.prototype.slice.call(arguments, 1);
+T.extend = function (obj) {
+	if (typeof Object.assign == 'function') {
+		obj = Object.assign.apply(Object, arguments);
+	}
+	else {
+		var i, j;
+		var arg;
+		var args = Array.prototype.slice.call(arguments, 1);
 
-	obj = obj || {};
+		obj = obj || {};
 
-	for (i = 0; i < args.length; i ++) {
-		var arg = args[i] || {};
+		for (i = 0; i < args.length; i ++) {
+			var arg = args[i] || {};
 
-		for (j in arg) {
-			if (arg.hasOwnProperty(j)) {
-				if (arg[j] !== null && arg[j] !== undefined) {
+			for (j in arg) {
+				if (arg.hasOwnProperty(j)) {
 					obj[j] = arg[j];
 				}
 			}
@@ -1080,6 +1083,69 @@ proto.set = function (mat) {
 
 proto.setContextTransform = function (ctx) {
 	ctx.setTransform(this[0], this[1], this[2], this[3], this[4], this[5]);
+};
+
+}(Tetragon));
+
+/**
+ * @depend tetragon.js
+ */
+
+(function (T) {
+'use strict';
+
+var ParticleSystem = T.ParticleSystem = function (options) {
+	options = T.extend({
+		construct: function () {},
+	}, options);
+
+	this.options = options;
+	this.particles = [];
+};
+
+var proto = ParticleSystem.prototype;
+
+proto.add = function () {
+	var object = {};
+
+	this.options.construct.apply(object, arguments);
+	this.particles.push(object);
+
+	return object;
+};
+
+proto.iterate = function (func) {
+	var i;
+	var args = Array.prototype.slice.call(arguments, 1);
+	var particles = this.particles;
+
+	if (typeof func == 'string') {
+		func = this.options[func];
+	}
+
+	function deleteParticle() {
+		if (particles[i] !== undefined) {
+			particles[i] = particles[particles.length - 1];
+			particles.length --;
+			i --;
+		}
+	}
+
+	var info = {
+		id: 0,
+		delete: deleteParticle,
+	};
+
+	args.unshift(info);
+
+	for (i = 0; i < particles.length; i ++) {
+		info.id = i;
+		func.apply(particles[i], args);
+	}
+};
+
+proto.clear = function () {
+	this.particles.length = 0;
 };
 
 }(Tetragon));

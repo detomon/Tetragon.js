@@ -2,7 +2,7 @@
 'use strict';
 
 w.Tetragon = w.Tetragon || {
-	version: '0.1.12',
+	version: '0.1.13',
 };
 
 }(window));
@@ -14,19 +14,22 @@ w.Tetragon = w.Tetragon || {
 (function (T) {
 'use strict';
 
-T.extend = function (obj, obj2) {
-	var i, j;
-	var arg;
-	var args = Array.prototype.slice.call(arguments, 1);
+T.extend = function (obj) {
+	if (typeof Object.assign == 'function') {
+		obj = Object.assign.apply(Object, arguments);
+	}
+	else {
+		var i, j;
+		var arg;
+		var args = Array.prototype.slice.call(arguments, 1);
 
-	obj = obj || {};
+		obj = obj || {};
 
-	for (i = 0; i < args.length; i ++) {
-		var arg = args[i] || {};
+		for (i = 0; i < args.length; i ++) {
+			var arg = args[i] || {};
 
-		for (j in arg) {
-			if (arg.hasOwnProperty(j)) {
-				if (arg[j] !== null && arg[j] !== undefined) {
+			for (j in arg) {
+				if (arg.hasOwnProperty(j)) {
 					obj[j] = arg[j];
 				}
 			}
