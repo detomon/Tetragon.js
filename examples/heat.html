@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Heat</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<link href="css/main.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="content-wrapper">
+	<div class="canvas-wrapper" style="padding-bottom: 100%;">
+		<canvas width="640" height="640" id="canvas"></canvas>
+	</div>
+</div>
+
+<script src="../dist/tetragon.js"></script>
+<script>
+
+const width = 32;
+const height = 32;
+const size = 20;
+let canvas = document.getElementById('canvas');
+let grid = makeGrid(width, height);
+let grid2 = makeGrid(width, height);
+let source = new Tetragon.Vector();
+
+function makeGrid(width, height) {
+	return new Float32Array(width * height);
+}
+
+function getAt(grid, x, y) {
+	if (y < 0 || y >= height) {
+		return 0;
+	}
+
+	x = (x + width) % width;
+	y = (y + height) % height;
+
+	return grid[y * width + x];
+}
+
+function setAt(grid, x, y, value) {
+	if (y < 0 || y >= height) {
+		return;
+	}
+
+	x = (x + width) % width;
+	y = (y + height) % height;
+
+	grid[y * width + x] = value;
+}
+
+function addAt(grid, x, y, value) {
+	if (y < 0 || y >= height) {
+		return;
+	}
+
+	x = (x + width) % width;
+	y = (y + height) % height;
+
+	grid[y * width + x] = Math.min(grid[y * width + x] + value, 1);
+}
+
+function subAt(grid, x, y, value) {
+	if (y < 0 || y >= height) {
+		return;
+	}
+
+	x = (x + width) % width;
+	y = (y + height) % height;
+
+	grid[y * width + x] = Math.max(0, grid[y * width + x] - value);
+}
+
+function multAt(grid, x, y, value) {
+	if (y < 0 || y >= height) {
+		return;
+	}
+
+	x = (x + width) % width;
+	y = (y + height) % height;
+
+	grid[y * width + x] *= value;
+}
+
+var controller = new Tetragon.Canvas({
+	element: canvas,
+	framerate: 1.0 / 120.0,
+	tick: function (dt, info) {
+		const pd0 = 0.96;
+		const pd1 = (1 - pd0) * 0.125;
+		const pd2 = (1 - pd0) * 0.0625;
+
+		grid2 = new Float32Array(grid);
+
+		addAt(grid2, source.x, source.y, 1);
+		addAt(grid2, source.x, source.y + 1, 0.25);
+		addAt(grid2, source.x, source.y - 1, 0.25);
+		addAt(grid2, source.x - 1, source.y + 1, 0.25);
+		addAt(grid2, source.x + 1, source.y + 1, 0.25);
+		addAt(grid2, source.x - 1, source.y - 1, 0.25);
+		addAt(grid2, source.x + 1, source.y - 1, 0.25);
+		addAt(grid2, source.x - 1, source.y, 0.25);
+		addAt(grid2, source.x + 1, source.y, 0.25);
+
+		const dist = [
+			[-1, -1, 0.125],
+			[+0, -1, 0.5],
+			[+1, -1, 0.125],
+
+			[-1, +0, 0.0625],
+			[+1, +0, 0.0625],
+
+			[-1, +1, 0.0625],
+			[+0, +1, 0.125],
+			[+1, +1, 0.0625],
+		];
+
+		let sum = 0;
+
+		for (let i = 0; i < dist.length; i++) {
+			sum += dist[i][2];
+		}
+
+		for (let i = 0; i < dist.length; i++) {
+			dist[i][2] /= sum;
+		}
+
+		for (let y = 0; y < height; y++) {
+			for (var x = 0; x < width; x++) {
+				const value = getAt(grid2, x, y) * 0.25;
+
+				for (let i = 0; i < dist.length; i++) {
+					const d = dist[i];
+					const dx = x + d[0];
+					const dy = y + d[1];
+					const v = value * d[2];
+
+					subAt(grid2, x, y, v);
+					addAt(grid2, dx, dy, v);
+				}
+
+				multAt(grid2, x, y, 0.99);
+			}
+		}
+
+		grid = new Float32Array(grid2);
+
+	},
+	draw: function (ctx, info) {
+		let transform = new Tetragon.Matrix();
+		transform.scale(new Tetragon.Vector(size, size));
+		this.transform = transform;
+
+		for (let y = 0; y < height; y++) {
+			for (let x = 0; x < width; x++) {
+				const value = getAt(grid, x, y);
+				const green = Math.sqrt(value) * 255;
+				const red = Math.max(0, value - 0.5) / 0.5 * 255;
+				const blue = Math.max(0, value - 0.75) / 0.25 * 255;
+
+				ctx.fillStyle = `rgb(${red | 0}, ${green | 0}, ${blue | 0})`;
+				ctx.fillRect(x, y, 1, 1);
+			}
+		}
+
+		this.popMatrix();
+	},
+	origin: new Tetragon.Vector(),
+});
+
+controller.startAnimating();
+
+controller.element.addEventListener('mousedown', (e) => {
+	 source = controller.worldPositionFromOffset(controller.offsetFromEvent(e)).integ;
+});
+
+controller.element.addEventListener('mousemove', (e) => {
+	 source = controller.worldPositionFromOffset(controller.offsetFromEvent(e)).integ;
+});
+
+</script>
+
+</body>
+</html>
