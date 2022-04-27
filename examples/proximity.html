@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Contraints</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<link href="css/main.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="content-wrapper">
+	<div class="canvas-wrapper">
+		<canvas width="800" height="600" id="canvas"></canvas>
+	</div>
+</div>
+
+<script src="../dist/tetragon.js"></script>
+<script>
+
+var canvas = document.getElementById('canvas');
+
+var points = [];
+let pointsCount = 24;
+let offset = new Tetragon.Vector(10000, 10000);
+let rectSize = new Tetragon.Vector(400, 300);
+let halfRect = rectSize.mult(0.5);
+
+for (let i = 0; i < pointsCount; i++) {
+	let a = (i + 0.5) / pointsCount * Math.PI * 2;
+	let v = new Tetragon.Vector(Math.cos(a), Math.sin(a)).mult(halfRect);
+
+	points.push(v);
+}
+
+var controller = new Tetragon.Canvas({
+	element: canvas,
+	tick: function (dt, info) {
+	},
+	draw: function (ctx, info) {
+		function limit(point) {
+			let x = point.x;
+			let y = point.y;
+			return new Tetragon.Vector(
+				Math.max(-rectSize.x * 0.5, Math.min(x, rectSize.x * 0.5)),
+				Math.max(-rectSize.y * 0.5, Math.min(y, rectSize.y * 0.5))
+			);
+		}
+
+		const shrinkFactor = 0.66;
+		//const expandFactor = 2.0; // reduce curve on corners
+
+		let newPoints = points.map(point => {
+			let middle = point.mult(shrinkFactor);
+			let diff = point.sub(offset);
+			let d = Math.max(0, Math.min(1 - (diff.length / point.length * shrinkFactor), 1));
+
+			d = Math.sqrt(d);
+			point = point.mult(2.0); // expand outside of rect
+
+			let newPoint = point.add(middle.sub(point).mult(d));
+
+			ctx.fillRect(newPoint.x, newPoint.y, 4, 4);
+			ctx.fillRect(middle.x, middle.y, 2, 2);
+
+			return limit(newPoint);
+		});
+
+		drawBezierCircular(ctx, newPoints);
+	}
+});
+
+controller.element.addEventListener('mousemove', function (e) {
+	offset = controller.worldPositionFromOffset(controller.offsetFromEvent(e));
+});
+
+controller.startAnimating();
+
+function drawBezierCircular(ctx, points, map) {
+	ctx.beginPath();
+
+	let midPoints = [];
+
+	for (let i = 0; i < points.length; i++) {
+		let point = points[i];
+		let nextPoint = points[(i + 1) % points.length];
+		let midPoint = point.add(nextPoint).mult(0.5);
+		midPoints.push(midPoint);
+	}
+
+	let firstPoint = midPoints[0];
+	ctx.moveTo(firstPoint.x, firstPoint.y);
+
+	for (let i = 1; i < points.length + 1; i++) {
+		let point = midPoints[i % points.length];
+		let control = points[i % points.length];
+		ctx.quadraticCurveTo(control.x, control.y, point.x, point.y);
+	}
+
+	ctx.stroke();
+}
+
+</script>
+
+</body>
+</html>
