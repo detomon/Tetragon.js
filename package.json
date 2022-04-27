@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/detomon/Tetragon.js",
   "devDependencies": {
-    "grunt": "^1.4.1",
+    "grunt": "^1.5.2",
     "grunt-concat-in-order": "^0.3.0",
-    "grunt-contrib-uglify": "^0.11.0"
+    "grunt-contrib-uglify": "^5.2.1"
   }
 }
