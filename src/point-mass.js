@@ -22,7 +22,7 @@ var PointMass = T.PointMass = function (position, mass) {
 	this.a = new T.Vector(); // null vector
 
 	// mass; set to 1.0 if not defined
-	this.mass = mass || 1.0;
+	this.mass = mass || 1.0;
 
 	// inverse mass
 	if (this.mass == 0.0) {
